@@ -49,4 +49,26 @@ class Flight(models.Model):
     def __str__(self):
         return f"{self.flight_number} - {self.airline.name}"
 
+
+
+class SeatType(models.TextChoices):
+    BUSINESS = 'business', 'business'
+    ECONOMY = 'economy', 'economy'
+    FIRSTCLASS = 'firstclass', 'firstclass'
+    PREMIUMECONOMY = 'premiumeconomy', 'premiumeconomy'
+
+
+class FlightSeat(models.Model):
+    flight= models.ForeignKey(Flight ,on_delete=models.CASCADE)
+    seat_number = models.CharField(max_length=5)
+    seat_type = models.CharField(max_length=20, choices=SeatType.choices, default=SeatType.ECONOMY)
+    manufacturingYear = models.IntegerField()
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    is_available = models.BooleanField(default=True)
+
+    def __str__(self):  
+        return f"{self.seat_number} - {self.seat_type} - f'for { self.flight.flight_number} flying with ' - f'{self.flight.airline.name} is '({'Available' if self.is_available else 'Booked'})"
+
+
     
+
