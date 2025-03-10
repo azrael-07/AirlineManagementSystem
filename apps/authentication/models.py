@@ -50,7 +50,7 @@ class Person(models.Model):
         return self.name
 
 class Customer(Person):
-    pass
+    frequentFlyingNumber = models.CharField(max_length= 20 , blank= True , null= True) #Optional Field
 
 class Admin(Person):
     pass
