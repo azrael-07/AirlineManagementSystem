@@ -1,0 +1,32 @@
+# Ignore Python cache files
+__pycache__/
+*.pyc
+*.pyo
+
+# Ignore Virtual Environment
+venv/
+.env
+
+# Ignore Database Files
+db.sqlite3
+*.db
+
+# Ignore IDE settings
+.vscode/
+.idea/
+*.swp
+
+# Ignore Django Migrations (optional, keep if needed)
+*/migrations/*.pyc
+*/migrations/*.pyo
+
+# Ignore Logs
+logs/
+*.log
+
+# Ignore Static Files (optional if collected)
+staticfiles/
+media/
+
+# Ignore Node Modules (if any frontend work is done)
+node_modules/
