@@ -9,10 +9,11 @@ class PaymentStatus(models.TextChoices):
     REFUNDED = 'refunded','refunded'
 
 class Payment(models.Model):    
-    payment_id = models.CharField(max_length=255,unique=True)
+    payment_id = models.AutoField(primary_key=True)  
     amount = models.FloatField()
     status = models.CharField(max_length=255,choices=PaymentStatus.choices,default=PaymentStatus.INITIATED)
-   
+    reservation = models.OneToOneField('bookings.AirlineReservation', on_delete=models.CASCADE, related_name="payment")
+
     class Meta:
         abstract = True  # Makes Payment an abstract base class
 
@@ -25,7 +26,7 @@ class CreditCard(Payment):
     reservation = models.OneToOneField("bookings.AirlineReservation", on_delete=models.CASCADE, related_name="creditcard_payment")
 
     def __str__(self):
-        return f"CreditCard Payment {self.paymentID} - {self.last_four_digits}"
+        return f"CreditCard Payment {self.payment_id} - {self.last_four_digits}"
 
 # ACH Payment
 class ACH(Payment):

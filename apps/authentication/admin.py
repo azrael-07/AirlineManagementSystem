@@ -1,13 +1,14 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import User, Person, Customer, Admin as AdminRole, Crew, Pilot, FrontDeskAssit
+from .models import User, Customer, Admin, Crew, Pilot, FrontDeskAssit
 
-# Customizing the User Admin Panel
+# Custom User Admin Panel
 class CustomUserAdmin(UserAdmin):
     model = User
     list_display = ('email', 'is_staff', 'is_active', 'is_superuser')
     list_filter = ('is_staff', 'is_active', 'is_superuser')
     ordering = ('email',)
+    
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
         ('Permissions', {'fields': ('is_staff', 'is_active', 'is_superuser', 'groups', 'user_permissions')}),
@@ -20,9 +21,29 @@ class CustomUserAdmin(UserAdmin):
     )
 
 admin.site.register(User, CustomUserAdmin)
-admin.site.register(Person)
-admin.site.register(Customer)
-admin.site.register(AdminRole)
-admin.site.register(Crew)
-admin.site.register(Pilot)
-admin.site.register(FrontDeskAssit)
+
+# Registering Concrete Person-Based Models
+@admin.register(Customer)
+class CustomerAdmin(admin.ModelAdmin):
+    list_display = ("user", "name", "frequentFlyingNumber")
+    search_fields = ("user__email", "frequentFlyingNumber")
+
+@admin.register(Admin)
+class AdminAdmin(admin.ModelAdmin):
+    list_display = ("user", "name")
+    search_fields = ("user__email", "name")
+
+@admin.register(FrontDeskAssit)
+class FrontDeskAssistAdmin(admin.ModelAdmin):
+    list_display = ("user", "name")
+    search_fields = ("user__email", "name")
+
+@admin.register(Pilot)
+class PilotAdmin(admin.ModelAdmin):
+    list_display = ("user", "name")
+    search_fields = ("user__email", "name")
+
+@admin.register(Crew)
+class CrewAdmin(admin.ModelAdmin):
+    list_display = ("user", "name")
+    search_fields = ("user__email", "name")

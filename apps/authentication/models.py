@@ -46,11 +46,19 @@ class Person(models.Model):
     pinCode = models.IntegerField()
     phone = models.CharField(max_length= 10)
 
+    class Meta:
+        abstract = True  # Makes this an abstract base class
+
     def __str__(self):
         return self.name
 
 class Customer(Person):
     frequentFlyingNumber = models.CharField(max_length= 20 , blank= True , null= True) #Optional Field
+
+    def __str__(self):
+        return f'{self.user.email} with the frequentFlyingNumber {self.frequentFlyingNumber} is registered'
+
+
 
 class Admin(Person):
     pass
