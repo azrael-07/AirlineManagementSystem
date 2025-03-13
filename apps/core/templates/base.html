@@ -1,0 +1,44 @@
+
+{% load static %}  <!-- This should be at the top of the file -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fly Delta</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="logo">✈ Airline Management</div>
+        <div class="nav-links">
+            <a href="{% url 'index' %}">Home</a>
+            <a href="#" id="search-icon">🔍 Search</a>
+            <a href="#" id="user-icon">👤 Account</a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>© 2025 Fly Delta. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        document.getElementById("search-icon").addEventListener("click", function() {
+            window.location.href = "{% url 'flight_search' %}"; //
+        });
+
+        document.getElementById("user-icon").addEventListener("click", function() {
+            window.location.href = "{% if request.user.is_authenticated %}{% url 'account_info' %}{% else %}{% url 'login' %}{% endif %}";
+        });
+    </script>
+
+</body>
+</html>
