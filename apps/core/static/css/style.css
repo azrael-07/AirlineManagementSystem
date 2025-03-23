@@ -1,27 +1,40 @@
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Open Sans', sans-serif;
     margin: 0;
     padding: 0;
-    text-align: center;
+    background-color: #e8f0fe;
 }
 
 header {
     display: flex;
     justify-content: space-between;
-    background-color: #004080;
-    color: white;
-    padding: 15px;
+    align-items: center;
+    background-color: #ffffff;
+    padding: 20px 40px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .logo {
     font-size: 24px;
     font-weight: bold;
+    color: #003366;
+}
+
+.nav-links {
+    display: flex;
+    gap: 15px;
 }
 
 .nav-links a {
-    color: white;
-    margin: 0 10px;
+    color: #003366;
+    font-weight: 600;
     text-decoration: none;
+    padding: 10px 15px;
+}
+
+.nav-links a:hover {
+    background-color: #dbe9f6;
+    border-radius: 5px;
 }
 
 .hero {
@@ -31,7 +44,7 @@ header {
 
 .btn {
     display: inline-block;
-    padding: 10px 20px;
+    padding: 12px 24px;
     background: #004080;
     color: white;
     text-decoration: none;
@@ -39,10 +52,8 @@ header {
 }
 
 footer {
-    background-color: #222;
+    background-color: #003366;
     color: white;
-    padding: 10px;
-    position: absolute;
-    bottom: 0;
-    width: 100%;
+    padding: 20px;
+    text-align: center;
 }

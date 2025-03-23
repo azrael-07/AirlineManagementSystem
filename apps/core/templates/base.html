@@ -1,22 +1,26 @@
-
-{% load static %}  <!-- This should be at the top of the file -->
+{% load static %}  
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    {% load static %}  
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fly Delta</title>
+    <title>{% block title %}Fly Delta{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    {% block styles %} {% endblock %}
 </head>
 <body>
 
     <!-- Header -->
     <header>
-        <div class="logo">✈ Airline Management</div>
+        <div class="logo">Fly Delta</div>
         <div class="nav-links">
-            <a href="{% url 'index' %}">Home</a>
-            <a href="#" id="search-icon">🔍 Search</a>
-            <a href="#" id="user-icon">👤 Account</a>
+            <a id="search" href="#">Book</a>
+            <a href="#">Trips</a>
+            <a href="#">Deals & Offers</a>
+            <a href="#">Check-in</a>
+            <a href="#">Delta Rewards</a>
+            <a href="#" id="user-icon">Login</a>
         </div>
     </header>
 
@@ -27,16 +31,27 @@
 
     <!-- Footer -->
     <footer>
+        <p>Find exclusive offers and the best deals available for you.</p>
         <p>© 2025 Fly Delta. All Rights Reserved.</p>
     </footer>
 
     <script>
-        document.getElementById("search-icon").addEventListener("click", function() {
-            window.location.href = "{% url 'flight_search' %}"; //
-        });
+        document.addEventListener("DOMContentLoaded", function() {
+            var searchIcon = document.getElementById("search");
+            var userIcon = document.getElementById("user-icon");
+            var home = document.getElementsByClassName("logo");
+            if (searchIcon) {
+                searchIcon.addEventListener("click", function() {
+                    window.location.href = "{% url 'flight_search' %}";
+                });
+            }
 
-        document.getElementById("user-icon").addEventListener("click", function() {
-            window.location.href = "{% if request.user.is_authenticated %}{% url 'account_info' %}{% else %}{% url 'login' %}{% endif %}";
+            if (userIcon) {
+                userIcon.addEventListener("click", function() {
+                    window.location.href = "{% if request.user.is_authenticated %}{% url 'account_info' %}{% else %}{% url 'login' %}{% endif %}";
+                });
+            }
+        
         });
     </script>
 
