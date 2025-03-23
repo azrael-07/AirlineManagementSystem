@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% load static %} 
+{% block title %}Search Fly Delta{% endblock %}
+{% block styles %}
+    <link rel="stylesheet" href="{% static 'css/flight_search.css' %}">  <!-- Override Base CSS -->
+{% endblock %}
+
+{% block content %}
+<h2>Search Flights</h2>
+<div class="tabbed-selection">
+    <button class="tab-button" onclick="selectTripType(event, 'oneway')">One Way</button>
+    <button class="tab-button" onclick="selectTripType(event, 'roundtrip')">Round Trip</button>
+    <input type="hidden" id="trip_type" name ="trip_type" value="oneway"></input>
+</div>
+
+<form method="POST" action="{% url 'flight_search' %}">
+    {% csrf_token %}
+    <div id="oneway" class="tab-content">
+        <label for="departure">Departure Airport:</label>
+        <input type="text" id="departure" name="departure" class="autocomplete" required>
+
+        <label for="arrival">Arrival Airport:</label>
+        <input type="text" id="arrival" name="arrival" class="autocomplete" required>
+
+        <label for="departure-date">Departure Date:</label>
+        <input type="date" id="departure-date" name="departure_date" required>
+    </div>
+
+    <div id="roundtrip" class="tab-content" style="display:none;">
+        <label for="departure">Departure Airport:</label>
+        <input type="text" id="departure" name="departure" class="autocomplete" required>
+
+        <label for="arrival">Arrival Airport:</label>
+        <input type="text" id="arrival" name="arrival" class="autocomplete" required>
+
+        <label for="departure-date">Departure Date:</label>
+        <input type="date" id="departure-date" name="departure_date" required>
+
+        <label for="return-date">Return Date:</label>
+        <input type="date" id="return-date" name="return_date" required>
+    </div>
+
+  
+
+    <label for="passengers">Passengers:</label>
+    <select id="passengers" name="passengers" required>
+        <option value="1">1 Adult</option>
+        <option value="2">2 Adults</option>
+        <option value="3">3 Adults</option>
+        <option value="4">4 Adults</option>
+    </select>
+
+    <label for="payment-method">Payment Method:</label>
+    <select id="payment-method" name="payment_method" required>
+        <option value="credit_card">Credit Card</option>
+        <option value="debit_card">Debit Card</option>
+        <option value="paypal">PayPal</option>
+    </select>
+
+    <button type="submit" class="styled-search-button">Search</button>
+</form>
+
+<script>function selectTripType(evt, tabName) {
+    const contents = document.getElementsByClassName("tab-content");
+
+    for (let i = 0; i < contents.length; i++) {
+        contents[i].style.display = "none";
+        const inputs = contents[i].querySelectorAll("input, select");
+        inputs.forEach(input => input.disabled = true);
+    }
+
+    const activeTab = document.getElementById(tabName);
+    activeTab.style.display = "block";
+
+    const activeInputs = activeTab.querySelectorAll("input, select");
+    activeInputs.forEach(input => input.disabled = false);
+
+    document.getElementById("trip_type").value = tabName;
+
+    const tabs = document.getElementsByClassName("tab-button");
+    for (let i = 0; i < tabs.length; i++) {
+        tabs[i].classList.remove("active-tab");
+    }
+    evt.target.classList.add("active-tab");
+}
+    // Show default tab on load
+    document.addEventListener("DOMContentLoaded", function() {
+    selectTripType({ target: document.querySelector(".tab-button.active-tab") }, "oneway");
+});
+</script>
+
+{% endblock %}
