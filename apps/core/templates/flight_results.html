@@ -1,18 +1,57 @@
 {% extends "base.html" %}
+{% block title %}Flight Results{% endblock %}
 {% block content %}
 <h2>Search Results</h2>
-{% if flights %}
-    <ul>
+
+<section class="flight-search-section">
+    <h2>Modify Your Search</h2>
+    <form method="post" action="{% url 'flight_search' %}">
+        {% csrf_token %}
+        <div class="form-row">
+            <label>From:</label>
+            <select name="departure">
+                {% for airport in airports %}
+                    <option value="{{ airport.code }}" {% if form_data.departure == airport.code %}selected{% endif %}>{{ airport.code  }}</option>
+                {% endfor %}
+            </select>
+
+            <label>To:</label>
+            <select name="arrival">
+                {% for airport in airports %}
+                    <option value="{{ airport.code }}" {% if form_data.arrival == airport.code %}selected{% endif %}>{{ airport.code  }}</option>
+                {% endfor %}
+            </select>
+
+            <label>Departure Date:</label>
+            <input type="date" name="departure_date" value="{{ form_data.departure_date }}">
+
+            <button type="submit">Search Again</button>
+        </div>
+    </form>
+</section>
+
+<section class="flight-summary">
+    <h2>Flight Summary</h2>
+    {% if flights %}
+        <p>Minimum Price: ${{ min_price }}</p>
+        <p>Minimum Duration: {{ min_duration }} minutes</p>
+    {% endif %}
+    
+</section>
+
+<section class="flight-results">
+    <h2>Available Flights</h2>
+    {% if flights %}
         {% for flight in flights %}
-            <li>
-                <strong>{{ flight.flight_number }}</strong> | 
-                {{ flight.airline.name }} |
-                {{ flight.departure }} → {{ flight.arrival }} |
-                Duration: {{ flight.duration }} min
-            </li>
+        <div class="flight-card">
+            <h3>{{ flight.flight_number }} - {{ flight.airline.name }}</h3>
+            <p>From: {{ flight.departure }} → To: {{ flight.arrival }}</p>
+            <p>Departure: {{ flight.departure_time }} | Duration: {{ flight.duration }} mins</p>
+            <a href="#" class="book-btn">View Seats</a>
+        </div>
         {% endfor %}
-    </ul>
-{% else %}
-    <p>No matching flights found.</p>
-{% endif %}
+    {% else %}
+        <p>No flights found matching your search.</p>
+    {% endif %}
+</section>
 {% endblock %}

@@ -8,7 +8,7 @@
 {% block content %}
 <h2>Search Flights</h2>
 <div class="tabbed-selection">
-    <button class="tab-button" onclick="selectTripType(event, 'oneway')">One Way</button>
+    <button class="tab-button active-tab" onclick="selectTripType(event, 'oneway')">One Way</button>
     <button class="tab-button" onclick="selectTripType(event, 'roundtrip')">Round Trip</button>
     <input type="hidden" id="trip_type" name ="trip_type" value="oneway"></input>
 </div>
@@ -85,7 +85,8 @@
 }
     // Show default tab on load
     document.addEventListener("DOMContentLoaded", function() {
-    selectTripType({ target: document.querySelector(".tab-button.active-tab") }, "oneway");
+    const defaultButton = document.querySelector(".tab-button.active-tab") || document.querySelector(".tab-button");
+    selectTripType({ target: defaultButton }, "oneway");
 });
 </script>
 

@@ -41,7 +41,7 @@ class Flight(models.Model):
     aircraft = models.OneToOneField(Aircraft, on_delete=models.CASCADE)
     departure = models.ForeignKey(Airport, on_delete=models.CASCADE, related_name="departing_flights")
     arrival = models.ForeignKey(Airport, on_delete=models.CASCADE, related_name="arriving_flights")
-
+    price = models.DecimalField(max_digits=10, decimal_places=2)
     departure_time = models.DateTimeField()
     arrival_time = models.DateTimeField()
     duration = models.IntegerField(help_text="Duration in minutes")
