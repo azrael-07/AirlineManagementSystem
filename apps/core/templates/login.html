@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Login - Fly Delta{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <h2>Login to Fly Delta</h2>
+    {% if error %}
+        <div class="alert alert-danger">{{ error }}</div>
+    {% endif %}
+    <form method="post" action="{% url 'login' %}">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" class="form-control" placeholder="Enter your email" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" class="form-control" placeholder="Enter your password" required>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Login</button>
+    </form>
+    <p>Don't have an account? <a href="#">Sign Up</a></p>
+</div>
+{% endblock %}

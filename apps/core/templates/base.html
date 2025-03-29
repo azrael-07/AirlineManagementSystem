@@ -42,13 +42,20 @@
             var home = document.getElementsByClassName("logo");
             if (searchIcon) {
                 searchIcon.addEventListener("click", function() {
-                    window.location.href = "{% url 'flight_search' %}";
+                    window.location.href = "{% if request.user.is_authenticated and request.user.customer %}{% url 'flight_search' %}{% else %}{% url 'login' %}{% endif %}";
                 });
             }
 
             if (userIcon) {
                 userIcon.addEventListener("click", function() {
                     window.location.href = "{% if request.user.is_authenticated %}{% url 'account_info' %}{% else %}{% url 'login' %}{% endif %}";
+                });
+            }
+
+            if (home[0]) {
+                home[0].addEventListener("click", function() {
+                    window.location.href = "{% url 'index' %}";
+
                 });
             }
         

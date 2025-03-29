@@ -38,7 +38,7 @@ class Airport(models.Model):
 class Flight(models.Model):
     flight_number = models.CharField(max_length=10, unique=True)
     airline = models.ForeignKey(Airline, on_delete=models.CASCADE)
-    aircraft = models.OneToOneField(Aircraft, on_delete=models.CASCADE)
+    aircraft = models.ForeignKey(Aircraft, on_delete=models.CASCADE)
     departure = models.ForeignKey(Airport, on_delete=models.CASCADE, related_name="departing_flights")
     arrival = models.ForeignKey(Airport, on_delete=models.CASCADE, related_name="arriving_flights")
     price = models.DecimalField(max_digits=10, decimal_places=2)
