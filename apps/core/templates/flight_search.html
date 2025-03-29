@@ -6,6 +6,9 @@
 {% endblock %}
 
 {% block content %}
+{% if error %}
+<div>{{ error }} </div>
+{% endif %}
 <h2>Search Flights</h2>
 <div class="tabbed-selection">
     <button class="tab-button active-tab" onclick="selectTripType(event, 'oneway')">One Way</button>
@@ -17,10 +20,18 @@
     {% csrf_token %}
     <div id="oneway" class="tab-content">
         <label for="departure">Departure Airport:</label>
-        <input type="text" id="departure" name="departure" class="autocomplete" required>
-
+        <select id="departure" name="departure" required>
+            {% for airport in airports %}
+              <option value="{{ airport.id }}">{{ airport.code }} - {{ airport.name }}</option>
+            {% endfor %}
+        </select>
+        
         <label for="arrival">Arrival Airport:</label>
-        <input type="text" id="arrival" name="arrival" class="autocomplete" required>
+        <select id="arrival" name="arrival" required>
+            {% for airport in airports %}
+              <option value="{{ airport.id }}">{{ airport.code }} - {{ airport.name }}</option>
+            {% endfor %}
+        </select>
 
         <label for="departure-date">Departure Date:</label>
         <input type="date" id="departure-date" name="departure_date" required>
@@ -28,11 +39,18 @@
 
     <div id="roundtrip" class="tab-content" style="display:none;">
         <label for="departure">Departure Airport:</label>
-        <input type="text" id="departure" name="departure" class="autocomplete" required>
-
+        <select id="departure" name="departure" required>
+            {% for airport in airports %}
+              <option value="{{ airport.id }}">{{ airport.code }} - {{ airport.name }}</option>
+            {% endfor %}
+        </select>
+        
         <label for="arrival">Arrival Airport:</label>
-        <input type="text" id="arrival" name="arrival" class="autocomplete" required>
-
+        <select id="arrival" name="arrival" required>
+            {% for airport in airports %}
+              <option value="{{ airport.id }}">{{ airport.code }} - {{ airport.name }}</option>
+            {% endfor %}
+        </select>
         <label for="departure-date">Departure Date:</label>
         <input type="date" id="departure-date" name="departure_date" required>
 
@@ -54,7 +72,7 @@
     <select id="payment-method" name="payment_method" required>
         <option value="credit_card">Credit Card</option>
         <option value="debit_card">Debit Card</option>
-        <option value="paypal">PayPal</option>
+        <option value="Cash">Cash</option>
     </select>
 
     <button type="submit" class="styled-search-button">Search</button>

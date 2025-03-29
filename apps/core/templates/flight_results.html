@@ -11,19 +11,24 @@
             <label>From:</label>
             <select name="departure">
                 {% for airport in airports %}
-                    <option value="{{ airport.code }}" {% if form_data.departure == airport.code %}selected{% endif %}>{{ airport.code  }}</option>
+                    <option value="{{ airport.id }}" {% if form_data.departure == airport.id %}selected{% endif %}>{{ airport.code }}</option>
                 {% endfor %}
             </select>
 
             <label>To:</label>
             <select name="arrival">
                 {% for airport in airports %}
-                    <option value="{{ airport.code }}" {% if form_data.arrival == airport.code %}selected{% endif %}>{{ airport.code  }}</option>
+                    <option value="{{ airport.id }}" {% if form_data.arrival == airport.id %}selected{% endif %}>{{ airport.code }}</option>
                 {% endfor %}
             </select>
 
             <label>Departure Date:</label>
             <input type="date" name="departure_date" value="{{ form_data.departure_date }}">
+
+            {% if form_data.return_date %}
+                <label>Return Date:</label>
+                <input type="date" name="return_date" value="{{ form_data.return_date }}">
+            {% endif %}
 
             <button type="submit">Search Again</button>
         </div>
@@ -32,26 +37,97 @@
 
 <section class="flight-summary">
     <h2>Flight Summary</h2>
-    {% if flights %}
+    {% if outbound_flights  %}
         <p>Minimum Price: ${{ min_price }}</p>
         <p>Minimum Duration: {{ min_duration }} minutes</p>
     {% endif %}
-    
 </section>
 
-<section class="flight-results">
-    <h2>Available Flights</h2>
-    {% if flights %}
-        {% for flight in flights %}
-        <div class="flight-card">
-            <h3>{{ flight.flight_number }} - {{ flight.airline.name }}</h3>
-            <p>From: {{ flight.departure }} → To: {{ flight.arrival }}</p>
-            <p>Departure: {{ flight.departure_time }} | Duration: {{ flight.duration }} mins</p>
-            <a href="#" class="book-btn">View Seats</a>
-        </div>
-        {% endfor %}
-    {% else %}
-        <p>No flights found matching your search.</p>
-    {% endif %}
-</section>
+{% if form_data.return_date %}
+    <!-- Roundtrip: Show Outbound Flights first -->
+    <section class="flight-results" id="outbound-section">
+        <h2>Outbound Flights</h2>
+        {% if outbound_flights %}
+            {% for flight in outbound_flights %}
+            <div class="flight-card">
+                <h3>{{ flight.flight_number }} - {{ flight.airline.name }}</h3>
+                <p>From: {{ flight.departure }} → To: {{ flight.arrival }}</p>
+                <p>Departure: {{ flight.departure_time }} | Duration: {{ flight.duration }} mins| Price : {{ flight.price }}</p>
+                <a href="#" class="book-btn" onclick="selectOutboundFlight('{{ flight.id }}'); return false;">Select Flight</a>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p>No outbound flights found.</p>
+        {% endif %}
+        <button id="toggle-btn" onclick="toggleFlightSelection()">Inbound Flight</button>
+    </section>
+
+    <section class="flight-results" id="inbound-section" style="display: none;">
+        <h2>Inbound Flights</h2>
+        {% if return_flights %}
+            {% for flight in return_flights %}
+            <div class="flight-card">
+                <h3>{{ flight.flight_number }} - {{ flight.airline.name }}</h3>
+                <p>From: {{ flight.departure }} → To: {{ flight.arrival }}</p>
+                <p>Departure: {{ flight.departure_time }} | Duration: {{ flight.duration }} mins| Price : {{ flight.price }}</p>
+                <a href="#" class="book-btn" onclick="selectInboundFlight('{{ flight.id }}'); return false;">Select Flight</a>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p>No inbound flights found.</p>
+        {% endif %}
+        <button id="next-btn" onclick="proceedToSeatSelection()">Next</button>
+    </section>
+{% else %}
+    <!-- One-way: Show flights normally -->
+    <section class="flight-results">
+        <h2>Available Flights</h2>
+        {% if outbound_flights %}
+            {% for flight in outbound_flights %}
+            <div class="flight-card">
+                <h3>{{ flight.flight_number }} - {{ flight.airline.name }}</h3>
+                <p>From: {{ flight.departure }} → To: {{ flight.arrival }}</p>
+                <p>Departure: {{ flight.departure_time }} | Duration: {{ flight.duration }} mins| Price : {{ flight.price }}</p>
+                <a href="#" class="book-btn" onclick="selectFlight('{{ flight.id }}'); return false;">Select Flight</a>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p>No flights found matching your search.</p>
+        {% endif %}
+        <button onclick="proceedToSeatSelection()">Next</button>
+    </section>
+{% endif %}
+
+<script>
+  // These functions should store the selected flight IDs in hidden inputs or JavaScript variables
+  function selectOutboundFlight(flightId) {
+      // Example: store in localStorage or update a hidden field
+      console.log('Selected outbound flight:', flightId);
+      window.localStorage.setItem('outBound',flightId)
+
+  }
+
+  function selectInboundFlight(flightId) {
+      console.log('Selected inbound flight:', flightId);
+      window.localStorage.setItem('inBound',flightId)
+  }
+
+  function selectFlight(flightId) {
+      console.log('Selected flight:', flightId);
+      window.localStorage.setItem('outBound',flightId)
+  }
+
+  function toggleFlightSelection(){
+    // Hide outbound section and show inbound section
+    document.getElementById('outbound-section').style.display = 'none';
+    document.getElementById('inbound-section').style.display = 'block';
+  }
+
+  function proceedToSeatSelection(){
+    // Redirect or process the selected flight(s) to the seat selection step
+    alert('Proceeding to seat selection...');
+    // For example: window.location.href = '/seat_selection/?outbound=' + selectedOutboundId + '&inbound=' + selectedInboundId;
+  }
+</script>
+
 {% endblock %}

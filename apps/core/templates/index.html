@@ -4,6 +4,6 @@
     <section class="hero">
         <h1>Welcome to Fly Delta</h1>
         <p>Your seamless flight booking experience starts here.</p>
-        <a href="{% url 'flight_search' %}" class="btn">Find a Flight</a>
+        <a href="{% if request.user.is_authenticated and request.user.customer %}{% url 'flight_search' %}{% else %}{% url 'login' %}{% endif %}" class="btn">Find a Flight</a>
     </section>
 {% endblock %}
