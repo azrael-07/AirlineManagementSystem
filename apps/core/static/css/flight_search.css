@@ -97,3 +97,221 @@ input[type="text"]:focus, select:focus {
         text-align: left;
     }
 }
+
+/* Flight Search Styles */
+:root {
+    --primary-color: #1a73e8;
+    --secondary-color: #4285f4;
+    --accent-color: #34a853;
+    --background-color: #f8f9fa;
+    --text-color: #202124;
+    --light-gray: #f1f3f4;
+    --border-color: #dadce0;
+    --error-color: #dc3545;
+}
+
+/* Search Container */
+.search-container {
+    max-width: 800px;
+    margin: 40px auto;
+    background: white;
+    padding: 32px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Search Header */
+.search-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 32px;
+}
+
+.search-header i {
+    font-size: 32px;
+    color: var(--primary-color);
+}
+
+.search-header h2 {
+    margin: 0;
+    font-size: 28px;
+    color: var(--text-color);
+}
+
+/* Error Message */
+.error-message {
+    background-color: #fff3f3;
+    color: var(--error-color);
+    padding: 16px;
+    border-radius: 8px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.error-message i {
+    font-size: 20px;
+}
+
+/* Tabbed Selection */
+.tabbed-selection {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 32px;
+    border-bottom: 2px solid var(--light-gray);
+    padding-bottom: 16px;
+}
+
+.tab-button {
+    background: none;
+    border: none;
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text-color);
+    cursor: pointer;
+    position: relative;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tab-button i {
+    font-size: 18px;
+}
+
+.tab-button::after {
+    content: '';
+    position: absolute;
+    bottom: -18px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: var(--primary-color);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.tab-button.active-tab {
+    color: var(--primary-color);
+}
+
+.tab-button.active-tab::after {
+    transform: scaleX(1);
+}
+
+/* Form Styles */
+form {
+    display: grid;
+    gap: 24px;
+}
+
+.form-group {
+    display: grid;
+    gap: 8px;
+}
+
+label {
+    font-weight: 500;
+    color: var(--text-color);
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+label i {
+    color: var(--primary-color);
+    font-size: 16px;
+}
+
+select, input[type="date"] {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 16px;
+    color: var(--text-color);
+    background-color: white;
+    transition: all 0.3s ease;
+}
+
+select:focus, input[type="date"]:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+    outline: none;
+}
+
+.styled-search-button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 16px 32px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    transition: all 0.3s ease;
+    margin-top: 16px;
+}
+
+.styled-search-button i {
+    font-size: 18px;
+}
+
+.styled-search-button:hover {
+    background-color: var(--secondary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Tab Content */
+.tab-content {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .search-container {
+        margin: 20px;
+        padding: 24px;
+    }
+
+    .tabbed-selection {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .tab-button {
+        width: 100%;
+        justify-content: center;
+    }
+
+    form {
+        gap: 16px;
+    }
+
+    .search-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 8px;
+    }
+}

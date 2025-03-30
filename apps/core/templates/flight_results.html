@@ -1,133 +1,248 @@
 {% extends "base.html" %}
+{% load static %}
 {% block title %}Flight Results{% endblock %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/flight_results.css' %}">
+{% endblock %}
+
 {% block content %}
-<h2>Search Results</h2>
+<div class="results-container">
+    <section class="search-summary">
+        <h2>Modify Your Search</h2>
+        <form method="post" action="{% url 'flight_search' %}">
+            {% csrf_token %}
+            <div class="flight-details">
+                <div class="detail-item">
+                    <label>From</label>
+                    <select name="departure">
+                        {% for airport in airports %}
+                            <option value="{{ airport.id }}" {% if form_data.departure == airport.id %}selected{% endif %}>{{ airport.code }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
 
-<section class="flight-search-section">
-    <h2>Modify Your Search</h2>
-    <form method="post" action="{% url 'flight_search' %}">
-        {% csrf_token %}
-        <div class="form-row">
-            <label>From:</label>
-            <select name="departure">
-                {% for airport in airports %}
-                    <option value="{{ airport.id }}" {% if form_data.departure == airport.id %}selected{% endif %}>{{ airport.code }}</option>
-                {% endfor %}
-            </select>
+                <div class="detail-item">
+                    <label>To</label>
+                    <select name="arrival">
+                        {% for airport in airports %}
+                            <option value="{{ airport.id }}" {% if form_data.arrival == airport.id %}selected{% endif %}>{{ airport.code }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
 
-            <label>To:</label>
-            <select name="arrival">
-                {% for airport in airports %}
-                    <option value="{{ airport.id }}" {% if form_data.arrival == airport.id %}selected{% endif %}>{{ airport.code }}</option>
-                {% endfor %}
-            </select>
+                <div class="detail-item">
+                    <label>Departure Date</label>
+                    <input type="date" name="departure_date" value="{{ form_data.departure_date }}">
+                </div>
 
-            <label>Departure Date:</label>
-            <input type="date" name="departure_date" value="{{ form_data.departure_date }}">
+                {% if form_data.return_date %}
+                <div class="detail-item">
+                    <label>Return Date</label>
+                    <input type="date" name="return_date" value="{{ form_data.return_date }}">
+                </div>
+                {% endif %}
+            </div>
+            <button type="submit" class="nav-btn">Search Again</button>
+        </form>
+    </section>
 
-            {% if form_data.return_date %}
-                <label>Return Date:</label>
-                <input type="date" name="return_date" value="{{ form_data.return_date }}">
-            {% endif %}
-
-            <button type="submit">Search Again</button>
+    {% if outbound_flights %}
+    <section class="flight-summary">
+        <div class="flight-details">
+            <div class="detail-item">
+                <span class="detail-label">Minimum Price</span>
+                <span class="price-tag">${{ min_price }}</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">Minimum Duration</span>
+                <span class="detail-value">{{ min_duration }} minutes</span>
+            </div>
         </div>
-    </form>
-</section>
-
-<section class="flight-summary">
-    <h2>Flight Summary</h2>
-    {% if outbound_flights  %}
-        <p>Minimum Price: ${{ min_price }}</p>
-        <p>Minimum Duration: {{ min_duration }} minutes</p>
+    </section>
     {% endif %}
-</section>
 
-{% if form_data.return_date %}
-    <!-- Roundtrip: Show Outbound Flights first -->
-    <section class="flight-results" id="outbound-section">
-        <h2>Outbound Flights</h2>
-        {% if outbound_flights %}
-            {% for flight in outbound_flights %}
-            <div class="flight-card">
-                <h3>{{ flight.flight_number }} - {{ flight.airline.name }}</h3>
-                <p>From: {{ flight.departure }} → To: {{ flight.arrival }}</p>
-                <p>Departure: {{ flight.departure_time }} | Duration: {{ flight.duration }} mins| Price : {{ flight.price }}</p>
-                <a href="#" class="book-btn" onclick="selectOutboundFlight('{{ flight.id }}'); return false;">Select Flight</a>
+    {% if form_data.return_date %}
+        <!-- Roundtrip: Show Outbound Flights first -->
+        <section class="flight-results" id="outbound-section">
+            <h2 class="section-title">Outbound Flights</h2>
+            {% if outbound_flights %}
+                {% for flight in outbound_flights %}
+                <div class="flight-card">
+                    <div class="flight-header">
+                        <div class="flight-number">{{ flight.flight_number }}</div>
+                        <div class="airline-name">{{ flight.airline.name }}</div>
+                    </div>
+                    <div class="flight-details">
+                        <div class="detail-item">
+                            <span class="detail-label">From</span>
+                            <span class="detail-value">{{ flight.departure }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">To</span>
+                            <span class="detail-value">{{ flight.arrival }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Departure</span>
+                            <span class="detail-value">{{ flight.departure_time }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Duration</span>
+                            <span class="detail-value">{{ flight.duration }} mins</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Price</span>
+                            <span class="price-tag">${{ flight.price }}</span>
+                        </div>
+                    </div>
+                    <a href="#" class="book-btn" onclick="selectOutboundFlight('{{ flight.id }}'); return false;">Select Flight</a>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-results">No outbound flights found.</div>
+            {% endif %}
+            <div class="navigation-buttons">
+                <button class="nav-btn" onclick="toggleFlightSelection()">Continue to Inbound Flights</button>
             </div>
-            {% endfor %}
-        {% else %}
-            <p>No outbound flights found.</p>
-        {% endif %}
-        <button id="toggle-btn" onclick="toggleFlightSelection()">Inbound Flight</button>
-    </section>
+        </section>
 
-    <section class="flight-results" id="inbound-section" style="display: none;">
-        <h2>Inbound Flights</h2>
-        {% if return_flights %}
-            {% for flight in return_flights %}
-            <div class="flight-card">
-                <h3>{{ flight.flight_number }} - {{ flight.airline.name }}</h3>
-                <p>From: {{ flight.departure }} → To: {{ flight.arrival }}</p>
-                <p>Departure: {{ flight.departure_time }} | Duration: {{ flight.duration }} mins| Price : {{ flight.price }}</p>
-                <a href="#" class="book-btn" onclick="selectInboundFlight('{{ flight.id }}'); return false;">Select Flight</a>
+        <section class="flight-results" id="inbound-section" style="display: none;">
+            <h2 class="section-title">Inbound Flights</h2>
+            {% if return_flights %}
+                {% for flight in return_flights %}
+                <div class="flight-card">
+                    <div class="flight-header">
+                        <div class="flight-number">{{ flight.flight_number }}</div>
+                        <div class="airline-name">{{ flight.airline.name }}</div>
+                    </div>
+                    <div class="flight-details">
+                        <div class="detail-item">
+                            <span class="detail-label">From</span>
+                            <span class="detail-value">{{ flight.departure }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">To</span>
+                            <span class="detail-value">{{ flight.arrival }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Departure</span>
+                            <span class="detail-value">{{ flight.departure_time }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Duration</span>
+                            <span class="detail-value">{{ flight.duration }} mins</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Price</span>
+                            <span class="price-tag">${{ flight.price }}</span>
+                        </div>
+                    </div>
+                    <a href="#" class="book-btn" onclick="selectInboundFlight('{{ flight.id }}'); return false;">Select Flight</a>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-results">No inbound flights found.</div>
+            {% endif %}
+            <div class="navigation-buttons">
+                <button class="nav-btn" onclick="proceedToSeatSelection()">Continue to Seat Selection</button>
             </div>
-            {% endfor %}
-        {% else %}
-            <p>No inbound flights found.</p>
-        {% endif %}
-        <button id="next-btn" onclick="proceedToSeatSelection()">Next</button>
-    </section>
-{% else %}
-    <!-- One-way: Show flights normally -->
-    <section class="flight-results">
-        <h2>Available Flights</h2>
-        {% if outbound_flights %}
-            {% for flight in outbound_flights %}
-            <div class="flight-card">
-                <h3>{{ flight.flight_number }} - {{ flight.airline.name }}</h3>
-                <p>From: {{ flight.departure }} → To: {{ flight.arrival }}</p>
-                <p>Departure: {{ flight.departure_time }} | Duration: {{ flight.duration }} mins| Price : {{ flight.price }}</p>
-                <a href="#" class="book-btn" onclick="selectFlight('{{ flight.id }}'); return false;">Select Flight</a>
+        </section>
+    {% else %}
+        <!-- One-way: Show flights normally -->
+        <section class="flight-results">
+            <h2 class="section-title">Available Flights</h2>
+            {% if outbound_flights %}
+                {% for flight in outbound_flights %}
+                <div class="flight-card">
+                    <div class="flight-header">
+                        <div class="flight-number">{{ flight.flight_number }}</div>
+                        <div class="airline-name">{{ flight.airline.name }}</div>
+                    </div>
+                    <div class="flight-details">
+                        <div class="detail-item">
+                            <span class="detail-label">From</span>
+                            <span class="detail-value">{{ flight.departure }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">To</span>
+                            <span class="detail-value">{{ flight.arrival }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Departure</span>
+                            <span class="detail-value">{{ flight.departure_time }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Duration</span>
+                            <span class="detail-value">{{ flight.duration }} mins</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Price</span>
+                            <span class="price-tag">${{ flight.price }}</span>
+                        </div>
+                    </div>
+                    <a href="#" class="book-btn" onclick="selectFlight('{{ flight.id }}'); return false;">Select Flight</a>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-results">No flights found matching your search.</div>
+            {% endif %}
+            <div class="navigation-buttons">
+                <button class="nav-btn" onclick="proceedToSeatSelection()">Continue to Seat Selection</button>
             </div>
-            {% endfor %}
-        {% else %}
-            <p>No flights found matching your search.</p>
-        {% endif %}
-        <button onclick="proceedToSeatSelection()">Next</button>
-    </section>
-{% endif %}
+        </section>
+    {% endif %}
+</div>
 
 <script>
-  // These functions should store the selected flight IDs in hidden inputs or JavaScript variables
-  function selectOutboundFlight(flightId) {
-      // Example: store in localStorage or update a hidden field
-      console.log('Selected outbound flight:', flightId);
-      window.localStorage.setItem('outBound',flightId)
+function selectOutboundFlight(flightId) {
+    console.log('Selected outbound flight:', flightId);
+    window.localStorage.setItem('outBound', flightId);
+}
 
-  }
+function selectInboundFlight(flightId) {
+    console.log('Selected inbound flight:', flightId);
+    window.localStorage.setItem('inBound', flightId);
+}
 
-  function selectInboundFlight(flightId) {
-      console.log('Selected inbound flight:', flightId);
-      window.localStorage.setItem('inBound',flightId)
-  }
+function selectFlight(flightId) {
+    console.log('Selected flight:', flightId);
+    window.localStorage.setItem('outBound', flightId);
+}
 
-  function selectFlight(flightId) {
-      console.log('Selected flight:', flightId);
-      window.localStorage.setItem('outBound',flightId)
-  }
-
-  function toggleFlightSelection(){
-    // Hide outbound section and show inbound section
+function toggleFlightSelection() {
     document.getElementById('outbound-section').style.display = 'none';
     document.getElementById('inbound-section').style.display = 'block';
-  }
+}
 
-  function proceedToSeatSelection(){
-    // Redirect or process the selected flight(s) to the seat selection step
+function proceedToSeatSelection() {
     alert('Proceeding to seat selection...');
-    // For example: window.location.href = '/seat_selection/?outbound=' + selectedOutboundId + '&inbound=' + selectedInboundId;
-  }
+}
 </script>
+{% endblock %}
 
+{% block extra_js %}
+<script>
+function selectOutboundFlight(flightId) {
+    console.log('Selected outbound flight:', flightId);
+    window.localStorage.setItem('outBound', flightId);
+}
+
+function selectInboundFlight(flightId) {
+    console.log('Selected inbound flight:', flightId);
+    window.localStorage.setItem('inBound', flightId);
+}
+
+function selectFlight(flightId) {
+    console.log('Selected flight:', flightId);
+    window.localStorage.setItem('outBound', flightId);
+}
+
+function toggleFlightSelection() {
+    document.getElementById('outbound-section').style.display = 'none';
+    document.getElementById('inbound-section').style.display = 'block';
+}
+
+function proceedToSeatSelection() {
+    alert('Proceeding to seat selection...');
+}
+</script>
 {% endblock %}

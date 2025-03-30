@@ -1,111 +1,218 @@
-{% extends "base.html" %}
-{% load static %} 
-{% block title %}Search Fly Delta{% endblock %}
-{% block styles %}
-    <link rel="stylesheet" href="{% static 'css/flight_search.css' %}">  <!-- Override Base CSS -->
-{% endblock %}
+{% extends "base.html" %} {% load static %} {% block title %}Search Fly Delta{% endblock %} {% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/flight_search.css' %}" />
+{% endblock %} {% block content %}
+<div class="search-container">
+  {% if error %}
+  <div class="error-message">
+    <i class="fas fa-exclamation-circle"></i>
+    {{ error }}
+  </div>
+  {% endif %}
 
-{% block content %}
-{% if error %}
-<div>{{ error }} </div>
-{% endif %}
-<h2>Search Flights</h2>
-<div class="tabbed-selection">
-    <button class="tab-button active-tab" onclick="selectTripType(event, 'oneway')">One Way</button>
-    <button class="tab-button" onclick="selectTripType(event, 'roundtrip')">Round Trip</button>
-    <input type="hidden" id="trip_type" name ="trip_type" value="oneway"></input>
-</div>
+  <div class="search-header">
+    <i class="fas fa-plane-departure"></i>
+    <h2>Search Flights</h2>
+  </div>
 
-<form method="POST" action="{% url 'flight_search' %}">
+  <div class="tabbed-selection">
+    <button
+      class="tab-button active-tab"
+      onclick="selectTripType(event, 'oneway')"
+    >
+      <i class="fas fa-plane"></i>
+      One Way
+    </button>
+    <button class="tab-button" onclick="selectTripType(event, 'roundtrip')">
+      <i class="fas fa-exchange-alt"></i>
+      Round Trip
+    </button>
+    <input type="hidden" id="trip_type" name="trip_type" value="oneway" />
+  </div>
+
+  <form method="POST" action="{% url 'flight_search' %}">
     {% csrf_token %}
+
     <div id="oneway" class="tab-content">
-        <label for="departure">Departure Airport:</label>
+      <div class="form-group">
+        <label for="departure">
+          <i class="fas fa-plane-departure"></i>
+          Departure Airport
+        </label>
         <select id="departure" name="departure" required>
-            {% for airport in airports %}
-              <option value="{{ airport.id }}">{{ airport.code }} - {{ airport.name }}</option>
-            {% endfor %}
+          {% for airport in airports %}
+          <option value="{{ airport.id }}">
+            {{ airport.code }} - {{ airport.name }}
+          </option>
+          {% endfor %}
         </select>
-        
-        <label for="arrival">Arrival Airport:</label>
-        <select id="arrival" name="arrival" required>
-            {% for airport in airports %}
-              <option value="{{ airport.id }}">{{ airport.code }} - {{ airport.name }}</option>
-            {% endfor %}
-        </select>
+      </div>
 
-        <label for="departure-date">Departure Date:</label>
-        <input type="date" id="departure-date" name="departure_date" required>
+      <div class="form-group">
+        <label for="arrival">
+          <i class="fas fa-plane-arrival"></i>
+          Arrival Airport
+        </label>
+        <select id="arrival" name="arrival" required>
+          {% for airport in airports %}
+          <option value="{{ airport.id }}">
+            {{ airport.code }} - {{ airport.name }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="departure-date">
+          <i class="fas fa-calendar-alt"></i>
+          Departure Date
+        </label>
+        <input type="date" id="departure-date" name="departure_date" required />
+      </div>
     </div>
 
-    <div id="roundtrip" class="tab-content" style="display:none;">
-        <label for="departure">Departure Airport:</label>
+    <div id="roundtrip" class="tab-content" style="display: none">
+      <div class="form-group">
+        <label for="departure">
+          <i class="fas fa-plane-departure"></i>
+          Departure Airport
+        </label>
         <select id="departure" name="departure" required>
-            {% for airport in airports %}
-              <option value="{{ airport.id }}">{{ airport.code }} - {{ airport.name }}</option>
-            {% endfor %}
+          {% for airport in airports %}
+          <option value="{{ airport.id }}">
+            {{ airport.code }} - {{ airport.name }}
+          </option>
+          {% endfor %}
         </select>
-        
-        <label for="arrival">Arrival Airport:</label>
-        <select id="arrival" name="arrival" required>
-            {% for airport in airports %}
-              <option value="{{ airport.id }}">{{ airport.code }} - {{ airport.name }}</option>
-            {% endfor %}
-        </select>
-        <label for="departure-date">Departure Date:</label>
-        <input type="date" id="departure-date" name="departure_date" required>
+      </div>
 
-        <label for="return-date">Return Date:</label>
-        <input type="date" id="return-date" name="return_date" required>
+      <div class="form-group">
+        <label for="arrival">
+          <i class="fas fa-plane-arrival"></i>
+          Arrival Airport
+        </label>
+        <select id="arrival" name="arrival" required>
+          {% for airport in airports %}
+          <option value="{{ airport.id }}">
+            {{ airport.code }} - {{ airport.name }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="departure-date">
+          <i class="fas fa-calendar-alt"></i>
+          Departure Date
+        </label>
+        <input type="date" id="departure-date" name="departure_date" required />
+      </div>
+
+      <div class="form-group">
+        <label for="return-date">
+          <i class="fas fa-calendar-check"></i>
+          Return Date
+        </label>
+        <input type="date" id="return-date" name="return_date" required />
+      </div>
     </div>
 
-  
-
-    <label for="passengers">Passengers:</label>
-    <select id="passengers" name="passengers" required>
+    <div class="form-group">
+      <label for="passengers">
+        <i class="fas fa-users"></i>
+        Number of Passengers
+      </label>
+      <select id="passengers" name="passengers" required>
         <option value="1">1 Adult</option>
         <option value="2">2 Adults</option>
         <option value="3">3 Adults</option>
         <option value="4">4 Adults</option>
-    </select>
+      </select>
+    </div>
 
-    <label for="payment-method">Payment Method:</label>
-    <select id="payment-method" name="payment_method" required>
+    <div class="form-group">
+      <label for="payment-method">
+        <i class="fas fa-credit-card"></i>
+        Payment Method
+      </label>
+      <select id="payment-method" name="payment_method" required>
         <option value="credit_card">Credit Card</option>
         <option value="debit_card">Debit Card</option>
         <option value="Cash">Cash</option>
-    </select>
+      </select>
+    </div>
 
-    <button type="submit" class="styled-search-button">Search</button>
-</form>
+    <button type="submit" class="styled-search-button">
+      <i class="fas fa-search"></i>
+      Search Flights
+    </button>
+  </form>
+</div>
 
-<script>function selectTripType(evt, tabName) {
+<script>
+  function selectTripType(evt, tabName) {
     const contents = document.getElementsByClassName("tab-content");
 
     for (let i = 0; i < contents.length; i++) {
-        contents[i].style.display = "none";
-        const inputs = contents[i].querySelectorAll("input, select");
-        inputs.forEach(input => input.disabled = true);
+      contents[i].style.display = "none";
+      const inputs = contents[i].querySelectorAll("input, select");
+      inputs.forEach((input) => (input.disabled = true));
     }
 
     const activeTab = document.getElementById(tabName);
     activeTab.style.display = "block";
 
     const activeInputs = activeTab.querySelectorAll("input, select");
-    activeInputs.forEach(input => input.disabled = false);
+    activeInputs.forEach((input) => (input.disabled = false));
 
     document.getElementById("trip_type").value = tabName;
 
     const tabs = document.getElementsByClassName("tab-button");
     for (let i = 0; i < tabs.length; i++) {
-        tabs[i].classList.remove("active-tab");
+      tabs[i].classList.remove("active-tab");
     }
     evt.target.classList.add("active-tab");
-}
-    // Show default tab on load
-    document.addEventListener("DOMContentLoaded", function() {
-    const defaultButton = document.querySelector(".tab-button.active-tab") || document.querySelector(".tab-button");
-    selectTripType({ target: defaultButton }, "oneway");
-});
-</script>
+  }
 
+  // Show default tab on load
+  document.addEventListener("DOMContentLoaded", function () {
+    const defaultButton =
+      document.querySelector(".tab-button.active-tab") ||
+      document.querySelector(".tab-button");
+    selectTripType({ target: defaultButton }, "oneway");
+  });
+</script>
+{% endblock %} {% block extra_js %}
+<script>
+  function selectTripType(evt, tabName) {
+    const contents = document.getElementsByClassName("tab-content");
+
+    for (let i = 0; i < contents.length; i++) {
+      contents[i].style.display = "none";
+      const inputs = contents[i].querySelectorAll("input, select");
+      inputs.forEach((input) => (input.disabled = true));
+    }
+
+    const activeTab = document.getElementById(tabName);
+    activeTab.style.display = "block";
+
+    const activeInputs = activeTab.querySelectorAll("input, select");
+    activeInputs.forEach((input) => (input.disabled = false));
+
+    document.getElementById("trip_type").value = tabName;
+
+    const tabs = document.getElementsByClassName("tab-button");
+    for (let i = 0; i < tabs.length; i++) {
+      tabs[i].classList.remove("active-tab");
+    }
+    evt.target.classList.add("active-tab");
+  }
+
+  // Show default tab on load
+  document.addEventListener("DOMContentLoaded", function () {
+    const defaultButton =
+      document.querySelector(".tab-button.active-tab") ||
+      document.querySelector(".tab-button");
+    selectTripType({ target: defaultButton }, "oneway");
+  });
+</script>
 {% endblock %}

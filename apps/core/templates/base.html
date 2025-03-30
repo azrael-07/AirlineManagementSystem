@@ -1,66 +1,134 @@
-{% load static %}  
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    {% load static %}  
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{% block title %}Fly Delta{% endblock %}</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    {% block styles %} {% endblock %}
-</head>
-<body>
-
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Base CSS -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+    {% block extra_css %}{% endblock %}
+  </head>
+  <body>
     <!-- Header -->
     <header>
-        <div class="logo">Fly Delta</div>
-        <div class="nav-links">
-            <a id="search" href="#">Book</a>
-            <a href="#">Trips</a>
-            <a href="#">Deals & Offers</a>
-            <a href="#">Check-in</a>
-            <a href="#">Delta Rewards</a>
-            <a href="#" id="user-icon">Login</a>
-        </div>
+      <div class="logo" id="home-logo">
+        <i class="fas fa-plane-departure"></i>
+        <span>Fly Delta</span>
+      </div>
+      <div class="nav-links">
+        <a
+          id="search"
+          href="{% if request.user.is_authenticated %}{% url 'flight_search' %}{% else %}{% url 'login' %}{% endif %}"
+          ><i class="fas fa-search"></i> Book</a
+        >
+        <a href="{% url 'index' %}"
+          ><i class="fas fa-calendar-alt"></i> Trips</a
+        >
+        <a href="{% url 'index' %}"
+          ><i class="fas fa-tag"></i> Deals & Offers</a
+        >
+        <a href="{% url 'index' %}"
+          ><i class="fas fa-check-circle"></i> Check-in</a
+        >
+        <a href="{% url 'index' %}"
+          ><i class="fas fa-star"></i> Delta Rewards</a
+        >
+        <a
+          href="{% if request.user.is_authenticated %}{% url 'account_info' %}{% else %}{% url 'login' %}{% endif %}"
+          id="user-icon"
+          ><i class="fas fa-user"></i> Login</a
+        >
+      </div>
     </header>
 
     <!-- Main Content -->
-    <main>
-        {% block content %}{% endblock %}
-    </main>
+    <main>{% block content %}{% endblock %}</main>
 
     <!-- Footer -->
     <footer>
-        <p>Find exclusive offers and the best deals available for you.</p>
+      <div class="footer-content">
+        <div class="footer-section">
+          <h3>About Us</h3>
+          <p>
+            Your trusted partner in air travel, providing exceptional service
+            and comfort.
+          </p>
+        </div>
+        <div class="footer-section">
+          <h3>Quick Links</h3>
+          <ul>
+            <li>
+              <a href="{% url 'index' %}"
+                ><i class="fas fa-chevron-right"></i> Careers</a
+              >
+            </li>
+            <li>
+              <a href="{% url 'index' %}"
+                ><i class="fas fa-chevron-right"></i> Contact Us</a
+              >
+            </li>
+            <li>
+              <a href="{% url 'index' %}"
+                ><i class="fas fa-chevron-right"></i> FAQ</a
+              >
+            </li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h3>Connect With Us</h3>
+          <div class="social-links">
+            <a href="{% url 'index' %}"><i class="fab fa-facebook"></i></a>
+            <a href="{% url 'index' %}"><i class="fab fa-twitter"></i></a>
+            <a href="{% url 'index' %}"><i class="fab fa-instagram"></i></a>
+            <a href="{% url 'index' %}"><i class="fab fa-linkedin"></i></a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
         <p>© 2025 Fly Delta. All Rights Reserved.</p>
+      </div>
     </footer>
 
+    {% block extra_js %}{% endblock %}
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            var searchIcon = document.getElementById("search");
-            var userIcon = document.getElementById("user-icon");
-            var home = document.getElementsByClassName("logo");
-            if (searchIcon) {
-                searchIcon.addEventListener("click", function() {
-                    window.location.href = "{% if request.user.is_authenticated and request.user.customer %}{% url 'flight_search' %}{% else %}{% url 'login' %}{% endif %}";
-                });
-            }
+      document.addEventListener("DOMContentLoaded", function () {
+        // Logo click handler
+        const homeLogo = document.getElementById("home-logo");
+        if (homeLogo) {
+          homeLogo.addEventListener("click", function () {
+            window.location.href = "{% url 'index' %}";
+          });
+        }
 
-            if (userIcon) {
-                userIcon.addEventListener("click", function() {
-                    window.location.href = "{% if request.user.is_authenticated %}{% url 'account_info' %}{% else %}{% url 'login' %}{% endif %}";
-                });
-            }
+        // Search icon click handler
+        const searchIcon = document.getElementById("search");
+        if (searchIcon) {
+          searchIcon.addEventListener("click", function () {
+            window.location.href =
+              "{% if request.user.is_authenticated %}{% url 'flight_search' %}{% else %}{% url 'login' %}{% endif %}";
+          });
+        }
 
-            if (home[0]) {
-                home[0].addEventListener("click", function() {
-                    window.location.href = "{% url 'index' %}";
-
-                });
-            }
-        
-        });
+        // User icon click handler
+        const userIcon = document.getElementById("user-icon");
+        if (userIcon) {
+          userIcon.addEventListener("click", function () {
+            window.location.href =
+              "{% if request.user.is_authenticated %}{% url 'account_info' %}{% else %}{% url 'login' %}{% endif %}";
+          });
+        }
+      });
     </script>
-
-</body>
+  </body>
 </html>
