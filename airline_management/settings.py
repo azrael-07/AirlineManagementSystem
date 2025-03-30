@@ -15,18 +15,32 @@ import pymysql
 import os
 pymysql.install_as_MySQLdb()
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'airline_management',
+#         'USER': 'airline_admin',
+#         'PASSWORD': 'securepassword',
+#         'HOST': '127.0.0.1',
+#         'PORT': '3306',
+#     }
+# }
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'airline_management',
-        'USER': 'airline_admin',
-        'PASSWORD': 'securepassword',
-        'HOST': '127.0.0.1',
-        'PORT': '3306',
+        'NAME': os.environ.get('MYSQL_DATABASE', 'airline_management'),
+        'USER': os.environ.get('MYSQL_USER', 'amsadmin'),  # or 'airline_admin'
+        'PASSWORD': os.environ.get('MYSQL_PASSWORD', 'Whatadrag@1'),
+        'HOST': os.environ.get('MYSQL_HOST', 'amsservr.mysql.database.azure.com'),
+        'PORT': os.environ.get('MYSQL_PORT', '3306'),
+        
     }
 }
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+
 
 
 # Quick-start development settings - unsuitable for production
