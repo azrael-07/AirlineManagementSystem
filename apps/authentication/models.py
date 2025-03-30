@@ -57,6 +57,8 @@ class Customer(Person):
 
     def __str__(self):
         return f'{self.user.email} with the frequentFlyingNumber {self.frequentFlyingNumber} is registered'
+    
+
 
 
 
