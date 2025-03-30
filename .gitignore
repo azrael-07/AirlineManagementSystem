@@ -24,8 +24,9 @@ db.sqlite3
 logs/
 *.log
 
-# Ignore Static Files (optional if collected)
-staticfiles/
+# Ignore all collected static except config
+/staticfiles/*
+!/staticfiles/azure_webapps_static.config
 media/
 
 # Ignore Node Modules (if any frontend work is done)
