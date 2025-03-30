@@ -1,9 +1,89 @@
-{% extends 'base.html' %}
+{% extends 'base.html' %} {% load static %} {% block title %}Welcome to Airline
+Management System{% endblock %} {% block content %}
+<!-- Hero Section with Slider -->
+<section class="hero-section">
+  <div class="slider">
+    <div class="slide">
+      <img src="{% static 'pics/flight1.jpg' %}" alt="Airplane in sky" />
+      <div class="slide-overlay"></div>
+      <div class="slide-content">
+        <h1>Welcome to Airline Management System</h1>
+        <p>Your trusted partner for seamless air travel experiences</p>
+        <a href="{% url 'flight_search' %}" class="cta-button"
+          >Search Flights</a
+        >
+      </div>
+    </div>
+    <div class="slide">
+      <img src="{% static 'pics/flight2.jpeg' %}" alt="Airport terminal" />
+      <div class="slide-overlay"></div>
+      <div class="slide-content">
+        <h1>Book Your Next Adventure</h1>
+        <p>Discover amazing destinations with our extensive flight network</p>
+        <a href="{% url 'flight_search' %}" class="cta-button">Start Booking</a>
+      </div>
+    </div>
+    <div class="slide">
+      <img src="{% static 'pics/flight3.jpg' %}" alt="Airplane takeoff" />
+      <div class="slide-overlay"></div>
+      <div class="slide-content">
+        <h1>Experience Excellence</h1>
+        <p>Premium service and comfortable travel await you</p>
+        <a href="{% url 'flight_search' %}" class="cta-button"
+          >Explore Flights</a
+        >
+      </div>
+    </div>
+    <button class="slider-arrow prev">
+      <i class="fas fa-chevron-left"></i>
+    </button>
+    <button class="slider-arrow next">
+      <i class="fas fa-chevron-right"></i>
+    </button>
+    <div class="slider-controls">
+      <div class="slider-dot"></div>
+      <div class="slider-dot"></div>
+      <div class="slider-dot"></div>
+    </div>
+  </div>
+</section>
 
-{% block content %}
-    <section class="hero">
-        <h1>Welcome to Fly Delta</h1>
-        <p>Your seamless flight booking experience starts here.</p>
-        <a href="{% if request.user.is_authenticated and request.user.customer %}{% url 'flight_search' %}{% else %}{% url 'login' %}{% endif %}" class="btn">Find a Flight</a>
-    </section>
+<!-- Features Section -->
+<section class="features-section">
+  <div class="features-container">
+    <div class="feature-card">
+      <i class="fas fa-plane"></i>
+      <h3>Wide Network</h3>
+      <p>
+        Access to numerous destinations worldwide with our extensive flight
+        network.
+      </p>
+    </div>
+    <div class="feature-card">
+      <i class="fas fa-clock"></i>
+      <h3>24/7 Support</h3>
+      <p>Round-the-clock customer support to assist you with any queries.</p>
+    </div>
+    <div class="feature-card">
+      <i class="fas fa-shield-alt"></i>
+      <h3>Safe Travel</h3>
+      <p>
+        Your safety is our top priority with modern aircraft and trained crew.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section">
+  <div class="cta-container">
+    <h2>Ready to Start Your Journey?</h2>
+    <p>Book your flights now and experience the best in air travel.</p>
+    <a href="{% url 'flight_search' %}" class="cta-button">Search Flights</a>
+  </div>
+</section>
+{% endblock %} {% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/index.css' %}" />
+{% endblock %} {% block extra_js %}
+<script src="{% static 'js/index.js' %}"></script>
 {% endblock %}
