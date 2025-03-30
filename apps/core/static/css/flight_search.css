@@ -207,6 +207,7 @@ input[type="text"]:focus, select:focus {
 form {
     display: grid;
     gap: 24px;
+    width: 100%;
 }
 
 .form-group {
@@ -230,6 +231,7 @@ label i {
 
 select, input[type="date"] {
     width: 100%;
+    box-sizing: border-box;
     padding: 12px;
     border: 1px solid var(--border-color);
     border-radius: 8px;
@@ -246,10 +248,11 @@ select:focus, input[type="date"]:focus {
 }
 
 .styled-search-button {
+    width: 100%;
     background-color: var(--primary-color);
     color: white;
     border: none;
-    padding: 16px 32px;
+    padding: 16px;
     border-radius: 8px;
     font-size: 16px;
     font-weight: 600;
@@ -260,6 +263,7 @@ select:focus, input[type="date"]:focus {
     gap: 12px;
     transition: all 0.3s ease;
     margin-top: 16px;
+    box-sizing: border-box;
 }
 
 .styled-search-button i {

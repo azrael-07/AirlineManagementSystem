@@ -1,26 +1,56 @@
-{% extends "base.html" %}
-{% block title %}Login - Fly Delta{% endblock %}
-
-{% block content %}
+{% extends "base.html" %} {% load static %} {% block title %}Login - Fly Delta{% endblock %} {% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/login.css' %}" />
+{% endblock %} {% block content %}
 <div class="login-container">
-    <h2>Login to Fly Delta</h2>
+  <div class="login-card">
+    <div class="login-header">
+      <i class="fas fa-user-circle"></i>
+      <h1>Welcome Back</h1>
+      <p>Sign in to your Fly Delta account</p>
+    </div>
+
     {% if error %}
-        <div class="alert alert-danger">{{ error }}</div>
+    <div class="error-message">
+      <i class="fas fa-exclamation-circle"></i>
+      {{ error }}
+    </div>
     {% endif %}
-    <form method="post" action="{% url 'login' %}">
-        {% csrf_token %}
-        <div class="form-group">
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" class="form-control" placeholder="Enter your email" required>
-        </div>
-        
-        <div class="form-group">
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password" class="form-control" placeholder="Enter your password" required>
-        </div>
-        
-        <button type="submit" class="btn btn-primary">Login</button>
+
+    <form method="POST" class="login-form">
+      {% csrf_token %}
+      <div class="form-group">
+        <label for="email">
+          <i class="fas fa-envelope"></i>
+          Email Address
+        </label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          required
+          placeholder="Enter your email"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="password">
+          <i class="fas fa-lock"></i>
+          Password
+        </label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          required
+          placeholder="Enter your password"
+        />
+      </div>
+
+      <button type="submit" class="login-button">
+        <i class="fas fa-sign-in-alt"></i>
+        Sign In
+      </button>
     </form>
-    <p>Don't have an account? <a href="#">Sign Up</a></p>
+  </div>
 </div>
 {% endblock %}

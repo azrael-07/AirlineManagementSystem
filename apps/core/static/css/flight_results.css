@@ -187,3 +187,28 @@
         width: 100%;
     }
 }
+
+.search-summary input[type="date"] {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.detail-item {
+    min-width: 200px;
+}
+
+form {
+    overflow-x: auto;
+}
+
+@media (max-width: 768px) {
+    .flight-details {
+        grid-template-columns: 1fr;
+    }
+
+    .detail-item {
+        flex: 1 1 100%;
+    }
+}
+
