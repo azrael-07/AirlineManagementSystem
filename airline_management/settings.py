@@ -81,7 +81,9 @@ INSTALLED_APPS = [
     'apps.payments',
     'apps.core',
 ]
-
+CSRF_TRUSTED_ORIGINS = [
+    'https://flydeltaams-h6fnh2dnbhafgrag.uksouth-01.azurewebsites.net'
+]
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',  
@@ -91,6 +93,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+      'django.middleware.csrf.CsrfViewMiddleware', 
+    
    
 ]
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
