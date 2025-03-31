@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Checkout{% endblock %}
+
+{% block content %}
+<h2>Checkout</h2>
+
+<p>Outbound Seat ID: {{ outbound_seat_id }}</p>
+{% if inbound_seat_id %}
+<p>Inbound Seat ID: {{ inbound_seat_id }}</p>
+{% endif %}
+
+<form method="post" action="{% url 'checkout' %}">
+  {% csrf_token %}
+  <input type="hidden" name="passenger_count" value="{{ passenger_count }}">
+  
+  <h3>Passenger Information</h3>
+  {% for i in passenger_count|add:"0"|make_list %}
+    <fieldset>
+      <legend>Passenger {{ forloop.counter }}</legend>
+      <label>Passport Number:</label>
+      <input type="text" name="passport_{{ forloop.counter0 }}" required><br>
+      
+      <label>Date of Birth:</label>
+      <input type="date" name="dob_{{ forloop.counter0 }}" required><br>
+    </fieldset>
+    <hr>
+  {% endfor %}
+
+  <h3>Payment Method</h3>
+  <label>
+    <input type="radio" name="payment_method" value="credit_card" required> Credit Card
+  </label><br>
+  <label>
+    <input type="radio" name="payment_method" value="ach"> ACH
+  </label><br>
+  <label>
+    <input type="radio" name="payment_method" value="cash"> Cash
+  </label>
+
+  <div id="credit_card_fields" style="display:none; margin-top: 10px;">
+    <label>Name on Card:</label>
+    <input type="text" name="card_name"><br>
+    <label>Card Number:</label>
+    <input type="text" name="card_number"><br>
+  </div>
+
+  <div id="ach_fields" style="display:none; margin-top: 10px;">
+    <label>Bank Name:</label>
+    <input type="text" name="bank_name"><br>
+    <label>Account Number:</label>
+    <input type="text" name="account_number"><br>
+  </div>
+
+  <div id="cash_fields" style="display:none; margin-top: 10px;">
+    <p>Payment will be collected at the counter.</p>
+  </div>
+
+  <button type="submit">Confirm Booking</button>
+</form>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const radios = document.getElementsByName('payment_method');
+    radios.forEach(radio => {
+      radio.addEventListener('change', function() {
+        document.getElementById('credit_card_fields').style.display = 'none';
+        document.getElementById('ach_fields').style.display = 'none';
+        document.getElementById('cash_fields').style.display = 'none';
+
+        if (this.value === 'credit_card') {
+          document.getElementById('credit_card_fields').style.display = 'block';
+        } else if (this.value === 'ach') {
+          document.getElementById('ach_fields').style.display = 'block';
+        } else if (this.value === 'cash') {
+          document.getElementById('cash_fields').style.display = 'block';
+        }
+      });
+    });
+  });
+</script>
+
+{% endblock %}

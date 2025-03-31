@@ -30,16 +30,7 @@ class AirlineReservation(models.Model):
     payment_ach = models.OneToOneField('payments.ACH', on_delete=models.SET_NULL, null=True, blank=True, related_name="reservation_ach")
     payment_cash = models.OneToOneField('payments.Cash', on_delete=models.SET_NULL, null=True, blank=True, related_name="reservation_cash")
 
-    def update_reservation_number(self):
-        payment_methods = [self.payment_credit_card, self.payment_ach, self.payment_cash]
-
-        for payment in payment_methods:
-            if payment and payment.status == 'approved':
-                self.reservationNumber = str(payment.payment_id)
-                self.status = 'Confirmed'
-                self.save()
-                break  # Stop after finding the first successful payment
-
+    
     def __str__(self):
         return f"Reservation {self.reservationNumber} for {self.itinerary.customer.name} - {self.flight.flight_number}"
 

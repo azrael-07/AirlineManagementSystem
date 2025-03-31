@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Seat Selection{% endblock %}
+{% block content %}
+<h2>Seat Selection</h2>
+
+<!-- Tier Selection Tabs -->
+<div class="seat-tier-tabs">
+    {% for tier in tiers %}
+      <a href="?outbound={{ outbound_flight.id }}{% if inbound_flight %}&inbound={{ inbound_flight.id }}{% endif %}&tier={{ tier }}"
+         class="tier-tab {% if selected_tier == tier %}active{% endif %}">
+         {{ tier|title }}
+      </a>
+    {% endfor %}
+</div>
+
+<!-- Outbound Flight Seat Selection -->
+{% if outbound_flight %}
+<h3>Outbound Flight: {{ outbound_flight.flight_number }}</h3>
+{% if outbound_seats %}
+  <form method="post" action="{% url 'seat_selection' %}">
+    {% csrf_token %}
+    <input type="hidden" name="outbound" value="{{ outbound_flight.id }}">
+    {% if inbound_flight %}
+      <input type="hidden" name="inbound" value="{{ inbound_flight.id }}">
+    {% endif %}
+    <input type="hidden" name="tier" value="{{ selected_tier }}">
+    {% for seat in outbound_seats %}
+       <div class="seat-option">
+           <input type="radio" name="outbound_seat" value="{{ seat.id }}" id="outbound_seat{{ seat.id }}">
+           <label for="outbound_seat{{ seat.id }}">{{ seat.seat_number }} - ${{ seat.price }}</label>
+       </div>
+    {% endfor %}
+    <button type="submit" name="action" value="select_outbound">Confirm Outbound Selection</button>
+  </form>
+{% else %}
+  <p>No outbound seats available in this tier.</p>
+{% endif %}
+{% endif %}
+
+<!-- Inbound Flight Seat Selection -->
+{% if inbound_flight %}
+<h3>Inbound Flight: {{ inbound_flight.flight_number }}</h3>
+{% if inbound_seats %}
+  <form method="post" action="{% url 'seat_selection' %}">
+    {% csrf_token %}
+    <input type="hidden" name="outbound" value="{{ outbound_flight.id }}">
+    <input type="hidden" name="inbound" value="{{ inbound_flight.id }}">
+    <input type="hidden" name="tier" value="{{ selected_tier }}">
+    {% for seat in inbound_seats %}
+       <div class="seat-option">
+           <input type="radio" name="inbound_seat" value="{{ seat.id }}" id="inbound_seat{{ seat.id }}">
+           <label for="inbound_seat{{ seat.id }}">{{ seat.seat_number }} - ${{ seat.price }}</label>
+       </div>
+    {% endfor %}
+    <button type="submit" name="action" value="select_inbound">Confirm Inbound Selection</button>
+  </form>
+{% else %}
+  <p>No inbound seats available in this tier.</p>
+{% endif %}
+{% endif %}
+
+<!-- Option to Skip Seat Selection -->
+<form method="post" action="{% url 'seat_selection' %}">
+    {% csrf_token %}
+    <input type="hidden" name="skip" value="true">
+    <button type="submit" name="action" value="skip">Skip Seat Selection</button>
+</form>
+{% endblock %}
