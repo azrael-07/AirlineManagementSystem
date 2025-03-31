@@ -214,7 +214,13 @@ function toggleFlightSelection() {
 }
 
 function proceedToSeatSelection() {
-    alert('Proceeding to seat selection...');
+    var outBound = window.localStorage.getItem('outBound');
+    var inBound = window.localStorage.getItem('inBound');
+    var url = "/seat_selection/?outbound=" + encodeURIComponent(outBound);
+    if (inBound) {
+        url += "&inbound=" + encodeURIComponent(inBound);
+    }
+    window.location.href = url;
 }
 </script>
 {% endblock %}
@@ -242,7 +248,13 @@ function toggleFlightSelection() {
 }
 
 function proceedToSeatSelection() {
-    alert('Proceeding to seat selection...');
+    var outBound = window.localStorage.getItem('outBound');
+    var inBound = window.localStorage.getItem('inBound');
+    var url = "/seat_selection/?outbound=" + encodeURIComponent(outBound);
+    if (inBound) {
+        url += "&inbound=" + encodeURIComponent(inBound);
+    }
+    window.location.href = url;
 }
 </script>
 {% endblock %}
