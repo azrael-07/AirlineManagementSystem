@@ -6,6 +6,7 @@ from apps.bookings.models import AirlineReservation, PassengerSeat, Passenger, I
 from apps.payments.models import CreditCard, ACH, Cash
 from django.views.decorators.http import require_http_methods
 from datetime import datetime
+from django.utils import timezone
 from django.contrib.auth import authenticate, login as auth_login
 from django.urls import reverse
 
@@ -174,6 +175,14 @@ def checkout_view(request):
         outbound_seat = get_object_or_404(FlightSeat, id=outbound_seat_id)
         inbound_seat = get_object_or_404(FlightSeat, id=inbound_seat_id) if inbound_seat_id else None
 
+        # Prevent booking for past flights
+        now = timezone.now()
+        if outbound_seat.flight.departure_time <= now:
+            return render(request, "error.html", {"message": "Cannot book a flight that has already departed."})
+
+        if inbound_seat and inbound_seat.flight.departure_time <= now:
+            return render(request, "error.html", {"message": "Cannot book a return flight that has already departed."})
+
         # Create itinerary for current user
         itinerary = Itinerary.objects.create(
             customer=request.user.customer,
@@ -189,9 +198,16 @@ def checkout_view(request):
 
         passengers = []
         for i in range(int(request.POST.get("passenger_count"))):
+            passport_number = request.POST.get(f"passport_{i}")
+            dob = request.POST.get(f"dob_{i}")
+
+            # Check for duplicate passenger on same flight
+            if Passenger.objects.filter(passport_number=passport_number, reservation__flight=outbound_seat.flight).exists():
+                return render(request, "error.html", {"message": f"Passenger with passport {passport_number} is already booked on this flight."})
+
             passenger = Passenger.objects.create(
-                passport_number=request.POST.get(f"passport_{i}"),
-                date_of_birth=request.POST.get(f"dob_{i}"),
+                passport_number=passport_number,
+                date_of_birth=dob,
                 reservation=reservation
             )
             passengers.append(passenger)
@@ -256,4 +272,31 @@ def checkout_view(request):
         "outbound_seat_id": request.session.get("selected_outbound_seat"),
         "inbound_seat_id": request.session.get("selected_inbound_seat"),
         "passenger_count": request.GET.get("passengers", 1)
+    })
+
+@require_http_methods(["GET"])
+def confirmation_view(request):
+    from apps.bookings.models import AirlineReservation, Passenger, PassengerSeat
+    from apps.flights.models import FlightSeat
+
+    # Retrieve the most recent reservation for the current user
+    reservations = AirlineReservation.objects.filter(itinerary__customer=request.user.customer).order_by('-id')
+    if not reservations.exists():
+        return HttpResponse("No reservation found.")
+
+    reservation = reservations.first()
+    passengers = Passenger.objects.filter(reservation=reservation)
+    seats = PassengerSeat.objects.filter(reservation=reservation).select_related('flight_seat')
+
+    seat_total = sum(seat.flight_seat.price for seat in seats)
+    flight_price = reservation.flight.price
+    total_price = seat_total + flight_price
+
+    return render(request, "confirmation.html", {
+        "reservation": reservation,
+        "passengers": passengers,
+        "seats": seats,
+        "total_price": total_price,
+        "seat_total": seat_total,
+        "flight_price": flight_price,
     })
