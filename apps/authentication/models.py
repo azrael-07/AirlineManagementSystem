@@ -72,7 +72,9 @@ class Crew(Person):
     pass
 
 class Pilot(Person):
-    pass
+    pilotId = models.CharField(max_length= 20 , blank= True , null= True) #Optional Field
+
+    
 
 
 
