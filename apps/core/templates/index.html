@@ -9,7 +9,7 @@ Management System{% endblock %} {% block content %}
       <div class="slide-content">
         <h1>Welcome to Airline Management System</h1>
         <p>Your trusted partner for seamless air travel experiences</p>
-        <a href="{% url 'flight_search' %}" class="cta-button"
+        <a href="{% if request.user.is_authenticated %}{% url 'flight_search' %}{% else %}{% url 'login' %}{% endif %}" class="cta-button"
           >Search Flights</a
         >
       </div>
@@ -20,7 +20,7 @@ Management System{% endblock %} {% block content %}
       <div class="slide-content">
         <h1>Book Your Next Adventure</h1>
         <p>Discover amazing destinations with our extensive flight network</p>
-        <a href="{% url 'flight_search' %}" class="cta-button">Start Booking</a>
+        <a href="{% if request.user.is_authenticated %}{% url 'flight_search' %}{% else %}{% url 'login' %}{% endif %}" class="cta-button">Start Booking</a>
       </div>
     </div>
     <div class="slide">
@@ -29,7 +29,7 @@ Management System{% endblock %} {% block content %}
       <div class="slide-content">
         <h1>Experience Excellence</h1>
         <p>Premium service and comfortable travel await you</p>
-        <a href="{% url 'flight_search' %}" class="cta-button"
+        <a href="{% if request.user.is_authenticated %}{% url 'flight_search' %}{% else %}{% url 'login' %}{% endif %}" class="cta-button"
           >Explore Flights</a
         >
       </div>
