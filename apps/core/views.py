@@ -276,8 +276,7 @@ def checkout_view(request):
 
 @require_http_methods(["GET"])
 def confirmation_view(request):
-    from apps.bookings.models import AirlineReservation, Passenger, PassengerSeat
-    from apps.flights.models import FlightSeat
+
 
     # Retrieve the most recent reservation for the current user
     reservations = AirlineReservation.objects.filter(itinerary__customer=request.user.customer).order_by('-id')
@@ -300,3 +299,73 @@ def confirmation_view(request):
         "seat_total": seat_total,
         "flight_price": flight_price,
     })
+
+@require_http_methods(["GET"])
+def pilot_dashboard(request):
+    if not hasattr(request.user, 'pilot'):
+        return render(request, "error.html", {"message": "Access denied. You are not a pilot."})
+
+    # Show only flights where the pilot is assigned
+    pilot = request.user.pilot
+    upcoming_flights = Flight.objects.filter(
+        pilots=pilot,
+        departure_time__gte=datetime.now()
+    ).order_by('departure_time')
+    return render(request, "pilot_dashboard.html", {"flights": upcoming_flights,
+                                                    "pilot": pilot})
+
+@require_http_methods(["GET"])
+def crew_dashboard(request):
+    if not hasattr(request.user, 'crew'):
+        return render(request, "error.html", {"message": "Access denied. You are not crew."})
+
+    # Show all flights today with extra info
+    today = timezone.now().date()
+    flights = Flight.objects.filter(departure_time__date=today).order_by('departure_time')
+
+    enriched_flights = []
+    for flight in flights:
+        passenger_count = Passenger.objects.filter(reservation__flight=flight).count()
+        pilot_names = flight.pilots.all().values_list('user__name', flat=True)
+        enriched_flights.append({
+            "flight": flight,
+            "passenger_count": passenger_count,
+            "pilots": list(pilot_names),
+        })
+
+    return render(request, "crew_dashboard.html", {"enriched_flights": enriched_flights})
+
+@require_http_methods(["GET"])
+def frontdesk_dashboard(request):
+    if not hasattr(request.user, 'frontdeskassit'):
+        return render(request, "error.html", {"message": "Access denied. You are not a front desk assistant."})
+
+    # List reservations for upcoming flights
+    upcoming_reservations = AirlineReservation.objects.filter(
+        flight__departure_time__gte=datetime.now()
+    ).select_related("flight", "itinerary", "itinerary__customer").order_by("flight__departure_time")
+    return render(request, "frontdesk_dashboard.html", {"reservations": upcoming_reservations})
+
+def validate_baggage_rules(passenger, weight):
+    travel_count = passenger.travel_count
+    free_limit = 15
+    extra_fee = 0
+
+    if travel_count == 0 and weight > 15:
+        return (False, "First-time flyers cannot exceed 15kg without manager override.", 0)
+
+    if travel_count >= 5:
+        free_limit = 20
+
+    over_limit = weight - free_limit
+    if over_limit > 10:
+        return (False, "Baggage exceeds maximum allowed even with frequent flyer bonus.", 0)
+
+    if over_limit > 0:
+        if travel_count >= 3:
+            passenger.extra_baggage_allowed += over_limit
+            extra_fee = over_limit * 10
+        else:
+            return (False, "You must have at least 3 flights with us to get extra baggage allowance.", 0)
+
+    return (True, "Baggage accepted", extra_fee)

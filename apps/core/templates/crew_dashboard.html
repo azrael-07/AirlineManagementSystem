@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Crew Dashboard{% endblock %}
+
+{% block content %}
+<h2>Welcome, Crew Member!</h2>
+
+<h3>Flights Today</h3>
+{% if enriched_flights %}
+  {% for item in enriched_flights %}
+    <div class="flight-card">
+      <h4>{{ item.flight.flight_number }} — {{ item.flight.airline.name }}</h4>
+      <p>{{ item.flight.departure }} → {{ item.flight.arrival }}</p>
+      <p><strong>Departure:</strong> {{ item.flight.departure_time|date:"M d, H:i" }}</p>
+      <p><strong>Passenger Count:</strong> {{ item.passenger_count }}</p>
+      <p><strong>Pilots:</strong>
+        {% if item.pilots %}
+          {{ item.pilots|join:", " }}
+        {% else %}
+          Not Assigned
+        {% endif %}
+      </p>
+    </div>
+  {% endfor %}
+{% else %}
+  <p>No flights scheduled for today.</p>
+{% endif %}
+{% endblock %}

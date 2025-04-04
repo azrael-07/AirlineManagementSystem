@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Pilot Dashboard{% endblock %}
+
+{% block content %}
+<h2>Welcome, Pilot {{Pilot}}!</h2>
+
+<h3>Your Assigned Upcoming Flights</h3>
+{% if flights %}
+  <ul>
+    {% for flight in flights %}
+      <li>
+        <strong>{{ flight.flight_number }}</strong> — {{ flight.departure }} → {{ flight.arrival }} <br>
+        Departure: {{ flight.departure_time|date:"M d, H:i" }} | Duration: {{ flight.duration }} mins
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p>You have no assigned flights coming up.</p>
+{% endif %}
+{% endblock %}
