@@ -1,68 +1,207 @@
-{% extends "base.html" %}
-{% block title %}Seat Selection{% endblock %}
-{% block content %}
-<h2>Seat Selection</h2>
+{% extends "base.html" %} {% load static %} {% block title %}Seat Selection{% endblock %} {% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/flight_seats.css' %}" />
+{% endblock %} {% block content %}
+<div class="seats-container">
+  <div class="seats-header">
+    <i class="fas fa-chair"></i>
+    <h2>Seat Selection</h2>
+  </div>
 
-<!-- Tier Selection Tabs -->
-<div class="seat-tier-tabs">
-    {% for tier in tiers %}
-      <a href="?outbound={{ outbound_flight.id }}{% if inbound_flight %}&inbound={{ inbound_flight.id }}{% endif %}&tier={{ tier }}"
-         class="tier-tab {% if selected_tier == tier %}active{% endif %}">
-         {{ tier|title }}
+  <div class="flight-info">
+    <div class="info-item">
+      <i class="fas fa-plane-departure"></i>
+      <span>Flight: {{ outbound_flight.flight_number }}</span>
+    </div>
+    <div class="info-item">
+      <i class="fas fa-calendar"></i>
+      <span>Date: {{ outbound_flight.departure_time|date:"Y-m-d" }}</span>
+    </div>
+    <div class="info-item">
+      <i class="fas fa-clock"></i>
+      <span>Duration: {{ outbound_flight.duration }}</span>
+    </div>
+    <div class="info-item">
+      <i class="fas fa-map-marker-alt"></i>
+      <span>
+          Route: {{ outbound_flight.departure.name }} ({{ outbound_flight.departure.code }})
+          → {{ outbound_flight.arrival.name }} ({{ outbound_flight.arrival.code }})
+      </span>
+    </div>
+  </div>
+
+  <!-- Tier Selection Tabs -->
+  <div class="tier-selection">
+    <div class="section-title">
+      <i class="fas fa-star"></i>
+      <span>Select Cabin Class</span>
+    </div>
+    <div class="tier-tabs">
+      {% for tier in tiers %}
+      <a
+        href="?outbound={{ outbound_flight.id }}{% if inbound_flight %}&inbound={{ inbound_flight.id }}{% endif %}&tier={{ tier }}"
+        class="tier-tab {% if selected_tier == tier %}active{% endif %}"
+      >
+        <i
+          class="fas {% if tier == 'economy' %}fa-plane{% elif tier == 'business' %}fa-star{% else %}fa-crown{% endif %}"
+        ></i>
+        {{ tier|title }}
       </a>
-    {% endfor %}
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Outbound Flight Seat Selection -->
+  {% if outbound_flight %}
+  <div class="flight-section">
+    <div class="section-title">
+      <i class="fas fa-plane-departure"></i>
+      <span>Outbound Flight: {{ outbound_flight.flight_number }}</span>
+    </div>
+    {% if outbound_seats %}
+    <form
+      method="post"
+      action="{% url 'seat_selection' %}"
+      class="seat-selection-form"
+    >
+      {% csrf_token %}
+      <input type="hidden" name="outbound" value="{{ outbound_flight.id }}" />
+      {% if inbound_flight %}
+      <input type="hidden" name="inbound" value="{{ inbound_flight.id }}" />
+      {% endif %}
+      <input type="hidden" name="tier" value="{{ selected_tier }}" />
+
+      <div class="seats-grid">
+        {% for seat in outbound_seats %} {% if forloop.counter0|divisibleby:4 %}
+        <div class="seats-row">
+          {% endif %}
+          <div class="seat-option">
+            <input
+              type="radio"
+              name="outbound_seat"
+              value="{{ seat.id }}"
+              id="outbound_seat{{ seat.id }}"
+            />
+            <label for="outbound_seat{{ seat.id }}" class="seat">
+              {{ seat.seat_number }}
+            </label>
+          </div>
+          {% if forloop.counter|divisibleby:4 or forloop.last %}
+        </div>
+        {% endif %} {% endfor %}
+      </div>
+
+      <div class="seats-legend">
+        <div class="legend-item">
+          <div class="legend-box"></div>
+          <span class="legend-text">Available</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-box selected"></div>
+          <span class="legend-text">Selected</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-box occupied"></div>
+          <span class="legend-text">Occupied</span>
+        </div>
+      </div>
+
+      <button
+        type="submit"
+        name="action"
+        value="select_outbound"
+        class="proceed-button"
+      >
+        <i class="fas fa-arrow-right"></i>
+        Confirm Outbound Selection
+      </button>
+    </form>
+    {% else %}
+    <p class="no-seats-message">No seats available in this cabin class.</p>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <!-- Inbound Flight Seat Selection -->
+  {% if inbound_flight %}
+  <div class="flight-section">
+    <div class="section-title">
+      <i class="fas fa-plane-arrival"></i>
+      <span>Inbound Flight: {{ inbound_flight.flight_number }}</span>
+    </div>
+    {% if inbound_seats %}
+    <form
+      method="post"
+      action="{% url 'seat_selection' %}"
+      class="seat-selection-form"
+    >
+      {% csrf_token %}
+      <input type="hidden" name="outbound" value="{{ outbound_flight.id }}" />
+      <input type="hidden" name="inbound" value="{{ inbound_flight.id }}" />
+      <input type="hidden" name="tier" value="{{ selected_tier }}" />
+
+      <div class="seats-grid">
+        {% for seat in inbound_seats %} {% if forloop.counter0|divisibleby:4 %}
+        <div class="seats-row">
+          {% endif %}
+          <div class="seat-option">
+            <input
+              type="radio"
+              name="inbound_seat"
+              value="{{ seat.id }}"
+              id="inbound_seat{{ seat.id }}"
+            />
+            <label for="inbound_seat{{ seat.id }}" class="seat">
+              {{ seat.seat_number }}
+            </label>
+          </div>
+          {% if forloop.counter|divisibleby:4 or forloop.last %}
+        </div>
+        {% endif %} {% endfor %}
+      </div>
+
+      <button
+        type="submit"
+        name="action"
+        value="select_inbound"
+        class="proceed-button"
+      >
+        <i class="fas fa-arrow-right"></i>
+        Confirm Inbound Selection
+      </button>
+    </form>
+    {% else %}
+    <p class="no-seats-message">No seats available in this cabin class.</p>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <!-- Option to Skip Seat Selection -->
+  <form method="post" action="{% url 'seat_selection' %}" class="skip-form">
+    {% csrf_token %}
+    <input type="hidden" name="skip" value="true" />
+    <button type="submit" name="action" value="skip" class="secondary-button">
+      <i class="fas fa-forward"></i>
+      Skip Seat Selection
+    </button>
+  </form>
 </div>
 
-<!-- Outbound Flight Seat Selection -->
-{% if outbound_flight %}
-<h3>Outbound Flight: {{ outbound_flight.flight_number }}</h3>
-{% if outbound_seats %}
-  <form method="post" action="{% url 'seat_selection' %}">
-    {% csrf_token %}
-    <input type="hidden" name="outbound" value="{{ outbound_flight.id }}">
-    {% if inbound_flight %}
-      <input type="hidden" name="inbound" value="{{ inbound_flight.id }}">
-    {% endif %}
-    <input type="hidden" name="tier" value="{{ selected_tier }}">
-    {% for seat in outbound_seats %}
-       <div class="seat-option">
-           <input type="radio" name="outbound_seat" value="{{ seat.id }}" id="outbound_seat{{ seat.id }}">
-           <label for="outbound_seat{{ seat.id }}">{{ seat.seat_number }} - ${{ seat.price }}</label>
-       </div>
-    {% endfor %}
-    <button type="submit" name="action" value="select_outbound">Confirm Outbound Selection</button>
-  </form>
-{% else %}
-  <p>No outbound seats available in this tier.</p>
-{% endif %}
-{% endif %}
-
-<!-- Inbound Flight Seat Selection -->
-{% if inbound_flight %}
-<h3>Inbound Flight: {{ inbound_flight.flight_number }}</h3>
-{% if inbound_seats %}
-  <form method="post" action="{% url 'seat_selection' %}">
-    {% csrf_token %}
-    <input type="hidden" name="outbound" value="{{ outbound_flight.id }}">
-    <input type="hidden" name="inbound" value="{{ inbound_flight.id }}">
-    <input type="hidden" name="tier" value="{{ selected_tier }}">
-    {% for seat in inbound_seats %}
-       <div class="seat-option">
-           <input type="radio" name="inbound_seat" value="{{ seat.id }}" id="inbound_seat{{ seat.id }}">
-           <label for="inbound_seat{{ seat.id }}">{{ seat.seat_number }} - ${{ seat.price }}</label>
-       </div>
-    {% endfor %}
-    <button type="submit" name="action" value="select_inbound">Confirm Inbound Selection</button>
-  </form>
-{% else %}
-  <p>No inbound seats available in this tier.</p>
-{% endif %}
-{% endif %}
-
-<!-- Option to Skip Seat Selection -->
-<form method="post" action="{% url 'seat_selection' %}">
-    {% csrf_token %}
-    <input type="hidden" name="skip" value="true">
-    <button type="submit" name="action" value="skip">Skip Seat Selection</button>
-</form>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // Handle seat selection
+    const seatInputs = document.querySelectorAll('input[type="radio"]');
+    seatInputs.forEach((input) => {
+      input.addEventListener("change", function () {
+        // Remove selected class from all seats
+        document.querySelectorAll(".seat").forEach((seat) => {
+          seat.classList.remove("selected");
+        });
+        // Add selected class to the selected seat
+        if (this.checked) {
+          this.nextElementSibling.classList.add("selected");
+        }
+      });
+    });
+  });
+</script>
 {% endblock %}
