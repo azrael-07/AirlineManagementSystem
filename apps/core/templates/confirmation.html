@@ -1,57 +1,172 @@
-{% extends "base.html" %}
-{% block title %}Booking Confirmation{% endblock %}
+{% extends "base.html" %} {% load static %} {% block title %}Booking
+Confirmation{% endblock %} {% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/confirmation.css' %}" />
+{% endblock %} {% block content %}
+<div class="confirmation-container">
+  <div class="confirmation-header">
+    <i class="fas fa-check-circle"></i>
+    <h2>Booking Confirmation</h2>
+    <p class="confirmation-message">Your booking has been confirmed!</p>
+  </div>
 
-{% block content %}
-<h2>Booking Confirmation</h2>
-
-{% if reservation %}
-    <div class="confirmation-summary">
-        <p><strong>Reservation Number:</strong> {{ reservation.reservationNumber }}</p>
-        <p><strong>Status:</strong> {{ reservation.status }}</p>
-        <p><strong>Flight:</strong> {{ reservation.flight.flight_number }} ({{ reservation.flight.airline.name }})</p>
+  {% if reservation %}
+  <div class="booking-details">
+    <div class="detail-section">
+      <div class="section-title">
+        <i class="fas fa-receipt"></i>
+        <span>Booking Information</span>
+      </div>
+      <div class="detail-grid">
+        <div class="detail-item">
+          <span class="detail-label">Reservation Number</span>
+          <span class="detail-value">{{ reservation.reservationNumber }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Status</span>
+          <span class="detail-value status-{{ reservation.status|lower }}"
+            >{{ reservation.status }}</span
+          >
+        </div>
+      </div>
     </div>
 
-    <h3>Passenger(s)</h3>
-    <ul>
+    <div class="detail-section">
+      <div class="section-title">
+        <i class="fas fa-plane"></i>
+        <span>Flight Details</span>
+      </div>
+      <div class="detail-grid">
+        <div class="detail-item">
+          <span class="detail-label">Flight Number</span>
+          <span class="detail-value"
+            >{{ reservation.flight.flight_number }}</span
+          >
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Airline</span>
+          <span class="detail-value"
+            >{{ reservation.flight.airline.name }}</span
+          >
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-section">
+      <div class="section-title">
+        <i class="fas fa-users"></i>
+        <span>Passenger Information</span>
+      </div>
+      <div class="passengers-list">
         {% for passenger in passengers %}
-            <li>
-                <strong>Passport:</strong> {{ passenger.passport_number }} |
-                <strong>DOB:</strong> {{ passenger.date_of_birth }}
-            </li>
+        <div class="passenger-item">
+          <div class="passenger-info">
+            <span class="passenger-label">Passport Number</span>
+            <span class="passenger-value">{{ passenger.passport_number }}</span>
+          </div>
+          <div class="passenger-info">
+            <span class="passenger-label">Date of Birth</span>
+            <span class="passenger-value"
+              >{{ passenger.date_of_birth|date:"Y-m-d" }}</span
+            >
+          </div>
+        </div>
         {% endfor %}
-    </ul>
+      </div>
+    </div>
 
-    <h3>Seat Assignment(s)</h3>
-    <ul>
+    <div class="detail-section">
+      <div class="section-title">
+        <i class="fas fa-chair"></i>
+        <span>Seat Assignments</span>
+      </div>
+      <div class="seats-list">
         {% for seat in seats %}
-            <li>
-                <strong>Flight:</strong> {{ seat.flight_seat.flight.flight_number }} |
-                <strong>Seat:</strong> {{ seat.flight_seat.seat_number }} |
-                <strong>Type:</strong> {{ seat.flight_seat.seat_type|title }}
-            </li>
+        <div class="seat-item">
+          <div class="seat-info">
+            <span class="seat-label">Flight</span>
+            <span class="seat-value"
+              >{{ seat.flight_seat.flight.flight_number }}</span
+            >
+          </div>
+          <div class="seat-info">
+            <span class="seat-label">Seat Number</span>
+            <span class="seat-value">{{ seat.flight_seat.seat_number }}</span>
+          </div>
+          <div class="seat-info">
+            <span class="seat-label">Class</span>
+            <span class="seat-value"
+              >{{ seat.flight_seat.seat_type|title }}</span
+            >
+          </div>
+        </div>
         {% endfor %}
-    </ul>
+      </div>
+    </div>
 
-        <h3>Total Fare Summary</h3>
-    <ul>
-        <li><strong>Flight Price:</strong> ${{ flight_price }}</li>
-        <li><strong>Seat(s) Total:</strong> ${{ seat_total }}</li>
-        <li><strong>Total Paid:</strong> ${{ total_price }}</li>
-    </ul>
+    <div class="detail-section">
+      <div class="section-title">
+        <i class="fas fa-dollar-sign"></i>
+        <span>Payment Summary</span>
+      </div>
+      <div class="payment-summary">
+        <div class="summary-item">
+          <span class="summary-label">Flight Price</span>
+          <span class="summary-value">${{ flight_price }}</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">Seat(s) Total</span>
+          <span class="summary-value">${{ seat_total }}</span>
+        </div>
+        <div class="summary-item total">
+          <span class="summary-label">Total Paid</span>
+          <span class="summary-value">${{ total_price }}</span>
+        </div>
+      </div>
 
-    <h3>Payment Summary</h3>
-    {% if reservation.payment_credit_card %}
-        <p><strong>Paid via:</strong> Credit Card ending in {{ reservation.payment_credit_card.last_four_digits }}</p>
-    {% elif reservation.payment_ach %}
-        <p><strong>Paid via:</strong> ACH from {{ reservation.payment_ach.bank_name }}</p>
-    {% elif reservation.payment_cash %}
-        <p><strong>Paid via:</strong> Cash</p>
-    {% else %}
-        <p>No payment info found.</p>
-    {% endif %}
-{% else %}
+      <div class="payment-method">
+        {% if reservation.payment_credit_card %}
+        <div class="payment-info">
+          <i class="fas fa-credit-card"></i>
+          <span
+            >Paid via Credit Card ending in {{
+            reservation.payment_credit_card.last_four_digits }}</span
+          >
+        </div>
+        {% elif reservation.payment_ach %}
+        <div class="payment-info">
+          <i class="fas fa-university"></i>
+          <span>Paid via ACH from {{ reservation.payment_ach.bank_name }}</span>
+        </div>
+        {% elif reservation.payment_cash %}
+        <div class="payment-info">
+          <i class="fas fa-money-bill-wave"></i>
+          <span>Paid via Cash</span>
+        </div>
+        {% else %}
+        <div class="payment-info">
+          <i class="fas fa-exclamation-circle"></i>
+          <span>No payment information found</span>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="action-buttons">
+    <a href="{% url 'flight_search' %}" class="primary-button">
+      <i class="fas fa-plane"></i>
+      Book Another Flight
+    </a>
+    <button onclick="window.print()" class="secondary-button">
+      <i class="fas fa-print"></i>
+      Print Confirmation
+    </button>
+  </div>
+  {% else %}
+  <div class="error-message">
+    <i class="fas fa-exclamation-circle"></i>
     <p>No reservation found.</p>
-{% endif %}
-
-<a href="{% url 'flight_search' %}" class="styled-search-button">Book Another Flight</a>
+  </div>
+  {% endif %}
+</div>
 {% endblock %}

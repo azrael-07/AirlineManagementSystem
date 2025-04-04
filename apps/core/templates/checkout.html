@@ -1,82 +1,188 @@
-{% extends "base.html" %}
-{% block title %}Checkout{% endblock %}
+{% extends "base.html" %} {% load static %} {% block title %}Checkout{% endblock%} {% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/checkout.css' %}" />
+{% endblock %} {% block content %}
 
-{% block content %}
-<h2>Checkout</h2>
-
-<p>Outbound Seat ID: {{ outbound_seat_id }}</p>
-{% if inbound_seat_id %}
-<p>Inbound Seat ID: {{ inbound_seat_id }}</p>
-{% endif %}
-
-<form method="post" action="{% url 'checkout' %}">
-  {% csrf_token %}
-  <input type="hidden" name="passenger_count" value="{{ passenger_count }}">
-  
-  <h3>Passenger Information</h3>
-  {% for i in passenger_count|add:"0"|make_list %}
-    <fieldset>
-      <legend>Passenger {{ forloop.counter }}</legend>
-      <label>Passport Number:</label>
-      <input type="text" name="passport_{{ forloop.counter0 }}" required><br>
-      
-      <label>Date of Birth:</label>
-      <input type="date" name="dob_{{ forloop.counter0 }}" required><br>
-    </fieldset>
-    <hr>
-  {% endfor %}
-
-  <h3>Payment Method</h3>
-  <label>
-    <input type="radio" name="payment_method" value="credit_card" required> Credit Card
-  </label><br>
-  <label>
-    <input type="radio" name="payment_method" value="ach"> ACH
-  </label><br>
-  <label>
-    <input type="radio" name="payment_method" value="cash"> Cash
-  </label>
-
-  <div id="credit_card_fields" style="display:none; margin-top: 10px;">
-    <label>Name on Card:</label>
-    <input type="text" name="card_name"><br>
-    <label>Card Number:</label>
-    <input type="text" name="card_number"><br>
+<div class="checkout-container">
+  <div class="checkout-header">
+    <i class="fas fa-shopping-cart"></i>
+    <h2>Checkout</h2>
   </div>
 
-  <div id="ach_fields" style="display:none; margin-top: 10px;">
-    <label>Bank Name:</label>
-    <input type="text" name="bank_name"><br>
-    <label>Account Number:</label>
-    <input type="text" name="account_number"><br>
+  <div class="seat-info">
+    <div class="section-title">
+      <i class="fas fa-plane"></i>
+      <span>Flight Details</span>
+    </div>
+    <div class="detail-section">
+      <div class="detail-item">
+        <i class="fas fa-plane-departure"></i>
+        <div class="detail-content">
+          <span class="detail-label">Flight Number</span>
+          <span class="detail-value">{{ flight.flight_number }}</span>
+        </div>
+      </div>
+      <div class="detail-item">
+        <i class="fas fa-calendar"></i>
+        <div class="detail-content">
+          <span class="detail-label">Date</span>
+          <span class="detail-value">{{ flight.departure_date }}</span>
+        </div>
+      </div>
+      <div class="detail-item">
+        <i class="fas fa-clock"></i>
+        <div class="detail-content">
+          <span class="detail-label">Duration</span>
+          <span class="detail-value">{{ flight.duration }}</span>
+        </div>
+      </div>
+      <div class="detail-item">
+        <i class="fas fa-map-marker-alt"></i>
+        <div class="detail-content">
+          <span class="detail-label">Route</span>
+          <span class="detail-value"
+            >{{ flight.departure.name }} → {{ flight.arrival.name }}</span
+          >
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">
+      <i class="fas fa-chair"></i>
+      <span>Selected Seats</span>
+    </div>
+    <div class="detail-section">
+      <div class="detail-item">
+        <i class="fas fa-plane-departure"></i>
+        <div class="detail-content">
+          <span class="detail-label">Outbound Seat</span>
+          <span class="detail-value"
+            >{{ selected_seats.outbound.seat_number }}</span
+          >
+        </div>
+      </div>
+      {% if selected_seats.inbound %}
+      <div class="detail-item">
+        <i class="fas fa-plane-arrival"></i>
+        <div class="detail-content">
+          <span class="detail-label">Inbound Seat</span>
+          <span class="detail-value"
+            >{{ selected_seats.inbound.seat_number }}</span
+          >
+        </div>
+      </div>
+      {% endif %}
+    </div>
   </div>
 
-  <div id="cash_fields" style="display:none; margin-top: 10px;">
-    <p>Payment will be collected at the counter.</p>
-  </div>
+  <form method="post" action="{% url 'checkout' %}">
+    {% csrf_token %}
+    <input type="hidden" name="passenger_count" value="{{ passenger_count }}" />
 
-  <button type="submit">Confirm Booking</button>
-</form>
+    <div class="section-title">
+      <i class="fas fa-users"></i>
+      <span>Passenger Information</span>
+    </div>
+
+    <div class="passenger-form">
+      {% for i in passenger_count|add:"0"|make_list %}
+      <fieldset>
+        <legend>
+          <i class="fas fa-user"></i>
+          Passenger {{ forloop.counter }}
+        </legend>
+          <div class="fieldset-body">
+            <div class="form-group">
+              <label>Passport Number</label>
+              <input type="text" name="passport_{{ forloop.counter0 }}" required />
+            </div>
+            <div class="form-group">
+              <label>Date of Birth</label>
+              <input type="date" name="dob_{{ forloop.counter0 }}" required />
+            </div>
+          </div>
+      </fieldset>
+      {% endfor %}
+    </div>
+
+    <div class="section-title">
+      <i class="fas fa-credit-card"></i>
+      <span>Payment Method</span>
+    </div>
+
+    <div class="payment-methods">
+      <label class="payment-option">
+        <input
+          type="radio"
+          name="payment_method"
+          value="credit_card"
+          required
+        />
+        <i class="fas fa-credit-card"></i>
+        <span>Credit Card</span>
+      </label>
+      <label class="payment-option">
+        <input type="radio" name="payment_method" value="ach" />
+        <i class="fas fa-university"></i>
+        <span>ACH</span>
+      </label>
+      <label class="payment-option">
+        <input type="radio" name="payment_method" value="cash" />
+        <i class="fas fa-money-bill-wave"></i>
+        <span>Cash</span>
+      </label>
+    </div>
+
+    <div id="credit_card_fields" class="payment-fields" style="display: none">
+      <div class="form-group">
+        <label>Name on Card</label>
+        <input type="text" name="card_name" />
+      </div>
+      <div class="form-group">
+        <label>Card Number</label>
+        <input type="text" name="card_number" />
+      </div>
+    </div>
+
+    <div id="ach_fields" class="payment-fields" style="display: none">
+      <div class="form-group">
+        <label>Bank Name</label>
+        <input type="text" name="bank_name" />
+      </div>
+      <div class="form-group">
+        <label>Account Number</label>
+        <input type="text" name="account_number" />
+      </div>
+    </div>
+
+    <div id="cash_fields" class="payment-fields" style="display: none">
+      <p>Payment will be collected at the counter.</p>
+    </div>
+
+    <button type="submit" class="confirm-button">
+      <i class="fas fa-check"></i>
+      Confirm Booking
+    </button>
+  </form>
+</div>
 
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const radios = document.getElementsByName('payment_method');
-    radios.forEach(radio => {
-      radio.addEventListener('change', function() {
-        document.getElementById('credit_card_fields').style.display = 'none';
-        document.getElementById('ach_fields').style.display = 'none';
-        document.getElementById('cash_fields').style.display = 'none';
+  document.addEventListener("DOMContentLoaded", () => {
+    const radios = document.getElementsByName("payment_method");
+    radios.forEach((radio) => {
+      radio.addEventListener("change", function () {
+        document.getElementById("credit_card_fields").style.display = "none";
+        document.getElementById("ach_fields").style.display = "none";
+        document.getElementById("cash_fields").style.display = "none";
 
-        if (this.value === 'credit_card') {
-          document.getElementById('credit_card_fields').style.display = 'block';
-        } else if (this.value === 'ach') {
-          document.getElementById('ach_fields').style.display = 'block';
-        } else if (this.value === 'cash') {
-          document.getElementById('cash_fields').style.display = 'block';
+        if (this.value === "credit_card") {
+          document.getElementById("credit_card_fields").style.display = "block";
+        } else if (this.value === "ach") {
+          document.getElementById("ach_fields").style.display = "block";
+        } else if (this.value === "cash") {
+          document.getElementById("cash_fields").style.display = "block";
         }
       });
     });
   });
 </script>
-
 {% endblock %}

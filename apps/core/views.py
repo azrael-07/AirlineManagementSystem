@@ -268,9 +268,27 @@ def checkout_view(request):
         return redirect("confirmation")
 
     # GET: show form
+    # return render(request, "checkout.html", {
+    #     "outbound_seat_id": request.session.get("selected_outbound_seat"),
+    #     "inbound_seat_id": request.session.get("selected_inbound_seat"),
+    #     "passenger_count": request.GET.get("passengers", 1)
+    # })
+    outbound_seat_id = request.session.get("selected_outbound_seat")
+    inbound_seat_id = request.session.get("selected_inbound_seat")
+
+    outbound_seat = get_object_or_404(FlightSeat, id=outbound_seat_id)
+    inbound_seat = get_object_or_404(FlightSeat, id=inbound_seat_id) if inbound_seat_id else None
+
+    flight = outbound_seat.flight
+
+    selected_seats = {
+        "outbound": outbound_seat,
+        "inbound": inbound_seat
+    }
+
     return render(request, "checkout.html", {
-        "outbound_seat_id": request.session.get("selected_outbound_seat"),
-        "inbound_seat_id": request.session.get("selected_inbound_seat"),
+        "flight": flight,
+        "selected_seats": selected_seats,
         "passenger_count": request.GET.get("passengers", 1)
     })
 
