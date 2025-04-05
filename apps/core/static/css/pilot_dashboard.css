@@ -1,0 +1,128 @@
+:root {
+  --primary-color: #1a73e8;
+  --secondary-color: #4285f4;
+  --accent-color: #34a853;
+  --background-color: #f8f9fa;
+  --text-color: #202124;
+  --light-gray: #f1f3f4;
+  --border-color: #dadce0;
+  --shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+body {
+  background-color: var(--background-color);
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  color: var(--text-color);
+}
+
+.pilot-dashboard-container {
+  max-width: 900px;
+  margin: 40px auto;
+  background: white;
+  padding: 32px;
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+}
+
+.pilot-dashboard-container h2 {
+  font-size: 28px;
+  color: var(--primary-color);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.pilot-dashboard-container h3 {
+  font-size: 22px;
+  color: var(--secondary-color);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+  border-bottom: 2px solid var(--light-gray);
+  padding-bottom: 8px;
+}
+
+.flight-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.flight-card {
+  background: var(--light-gray);
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow);
+  transition: transform 0.2s ease;
+}
+
+.flight-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.flight-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+
+.flight-number {
+  font-weight: bold;
+  font-size: 18px;
+  color: var(--primary-color);
+}
+
+.flight-route {
+  font-size: 16px;
+  color: #333;
+}
+
+.flight-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  font-size: 14px;
+  color: #555;
+}
+
+.flight-details i {
+  margin-right: 6px;
+  color: var(--primary-color);
+}
+
+.no-flights {
+  padding: 16px;
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeeba;
+  border-radius: 8px;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+@media (max-width: 768px) {
+  .pilot-dashboard-container {
+    padding: 24px;
+    margin: 20px;
+  }
+
+  .flight-details {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .pilot-dashboard-container h2 {
+    font-size: 24px;
+  }
+
+  .pilot-dashboard-container h3 {
+    font-size: 20px;
+  }
+}
