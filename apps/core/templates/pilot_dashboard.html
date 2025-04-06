@@ -1,20 +1,33 @@
 {% extends "base.html" %}
+{% load static %}
 {% block title %}Pilot Dashboard{% endblock %}
 
-{% block content %}
-<h2>Welcome, Pilot {{Pilot}}!</h2>
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/pilot_dashboard.css' %}">
+{% endblock %}
 
-<h3>Your Assigned Upcoming Flights</h3>
-{% if flights %}
-  <ul>
-    {% for flight in flights %}
-      <li>
-        <strong>{{ flight.flight_number }}</strong> — {{ flight.departure }} → {{ flight.arrival }} <br>
-        Departure: {{ flight.departure_time|date:"M d, H:i" }} | Duration: {{ flight.duration }} mins
-      </li>
-    {% endfor %}
-  </ul>
-{% else %}
-  <p>You have no assigned flights coming up.</p>
-{% endif %}
+{% block content %}
+<div class="pilot-dashboard-container">
+  <h2><i class="fas fa-user-tie"></i> Welcome, Pilot {{ Pilot }}!</h2>
+
+  <h3><i class="fas fa-plane-departure"></i> Your Assigned Upcoming Flights</h3>
+  {% if flights %}
+    <ul class="flight-list">
+      {% for flight in flights %}
+        <li class="flight-card">
+          <div class="flight-header">
+            <span class="flight-number"><i class="fas fa-plane"></i> {{ flight.flight_number }}</span>
+            <span class="flight-route">{{ flight.departure }} <i class="fas fa-arrow-right"></i> {{ flight.arrival }}</span>
+          </div>
+          <div class="flight-details">
+            <span><i class="far fa-clock"></i> Departure: {{ flight.departure_time|date:"M d, H:i" }}</span>
+            <span><i class="fas fa-hourglass-half"></i> Duration: {{ flight.duration }} mins</span>
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="no-flights"><i class="fas fa-info-circle"></i> You have no assigned flights coming up.</p>
+  {% endif %}
+</div>
 {% endblock %}

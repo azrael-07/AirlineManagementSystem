@@ -1,7 +1,20 @@
 {% extends "base.html" %}
+{% load static %}
 {% block title %}Error{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/error.css' %}">
+{% endblock %}
+
 {% block content %}
-  <h2>Error</h2>
-  <p>{{ message }}</p>
-  <a href="{% url 'flight_search' %}" class="styled-search-button">Back to Search</a>
+<div class="error-container">
+  <div class="error-icon">
+    <i class="fas fa-exclamation-triangle"></i>
+  </div>
+  <h2>Oops! Something went wrong</h2>
+  <p class="error-message">{{ message }}</p>
+  <a href="{% url 'flight_search' %}" class="error-button">
+    <i class="fas fa-arrow-left"></i> Back to Search
+  </a>
+</div>
 {% endblock %}
