@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Start Check-In{% endblock %}
+
+{% block content %}
+<h2>Welcome to Fly Delta Self Check-In</h2>
+<p>Please enter your reservation details to begin.</p>
+
+{% if message %}
+  <div class="error">{{ message }}</div>
+{% endif %}
+
+<form method="post" action="{% url 'checkin_start' %}">
+  {% csrf_token %}
+  <label for="reservation_number">Reservation Number:</label>
+  <input type="text" name="reservation_number" required>
+
+  <label for="passport">Passport Number:</label>
+  <input type="text" name="passport" required>
+
+  <button type="submit" class="styled-search-button">Start Check-In</button>
+</form>
+
+<div class="support-link">
+  <p>Having trouble?</p>
+  <a href="#" class="styled-search-button">Call a Human Agent</a>
+</div>
+{% endblock %}

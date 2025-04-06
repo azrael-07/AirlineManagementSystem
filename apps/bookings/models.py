@@ -38,6 +38,9 @@ class Passenger(models.Model):
     passport_number = models.CharField(max_length=20, unique=True)
     date_of_birth = models.DateField()
     reservation = models.ForeignKey(AirlineReservation, on_delete=models.CASCADE, related_name="passengers")
+    travel_count = models.IntegerField(default=0)
+    baggage_weight = models.FloatField(null=True, blank=True)
+    extra_baggage_allowed = models.FloatField(default=0)
 
     def __str__(self):
         return f"Passenger {self.passport_number} - Reservation {self.reservation.reservationNumber}"
@@ -46,15 +49,13 @@ class PassengerSeat(models.Model):
     passenger = models.ForeignKey("bookings.Passenger", on_delete=models.CASCADE)
     flight_seat = models.ForeignKey("flights.FlightSeat", on_delete=models.CASCADE)
     reservation = models.ForeignKey("bookings.AirlineReservation", on_delete=models.CASCADE)
-    travel_count = models.IntegerField(default=0)
-    baggage_weight = models.FloatField(null=True, blank=True)
-    extra_baggage_allowed = models.FloatField(default=0)
+  
 
     def __str__(self):
         return f"Seat {self.flight_seat.seat_number} assigned to {self.passenger}"
     
 class FlightBaggage(models.Model):
-    flight = models.OneToOneField("flights.Flight", on_delete=models.CASCADE)
+    flight = models.OneToOneField("flights.flight", on_delete=models.CASCADE)
     total_capacity_kg = models.FloatField()
     used_capacity_kg = models.FloatField(default=0)
 
@@ -65,4 +66,7 @@ class FlightBaggage(models.Model):
     def estimate_passenger_capacity(self):
         from apps.bookings.models import Passenger
         passenger_count = Passenger.objects.filter(reservation__flight=self.flight).count()
-        return passenger_count * 15  # Assuming 15kg standard
+        return passenger_count * 15  # Assuming 15kg per passenger
+
+    def __str__(self):
+        return f"Baggage Capacity for Flight {self.flight.flight_number}: {self.remaining_capacity} kg remaining"

@@ -35,7 +35,7 @@ class ACH(Payment):
     reservation = models.OneToOneField("bookings.AirlineReservation", on_delete=models.CASCADE, related_name="ach_payment")
 
     def __str__(self):
-        return f"ACH Payment {self.paymentID} - {self.bank_name}"
+        return f"ACH Payment {self.payment_id} - {self.bank_name}"
 
 # Cash Payment
 class Cash(Payment):
@@ -43,4 +43,4 @@ class Cash(Payment):
     reservation = models.OneToOneField("bookings.AirlineReservation", on_delete=models.CASCADE, related_name="cash_payment")
 
     def __str__(self):
-        return f"Cash Payment {self.paymentID} - Amount: {self.cash_tendered}"
+        return f"Cash Payment {self.payment_id} - Amount: {self.cash_tendered}"

@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Baggage Check-In{% endblock %}
+
+{% block content %}
+<h2>Baggage Check-In</h2>
+
+<p>Welcome, {{ passenger.passport_number }}! Please enter your baggage weight below.</p>
+
+{% if message %}
+  <div class="message">{{ message }}</div>
+{% endif %}
+
+<form method="post" action="{% url 'checkin_baggage' %}">
+  {% csrf_token %}
+  <label for="baggage_weight">Baggage Weight (kg):</label>
+  <input type="number" name="baggage_weight" step="0.1" min="0" required>
+
+  <button type="submit" class="styled-search-button">Submit</button>
+</form>
+
+{% if extra_fee %}
+  <p>⚠️ You have exceeded the free baggage allowance. Estimated fee: ${{ extra_fee }}</p>
+{% endif %}
+
+<div class="support-link">
+  <p>Need help?</p>
+  <a href="#" class="styled-search-button">Call a Human Agent</a>
+</div>
+{% endblock %}

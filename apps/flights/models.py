@@ -48,6 +48,7 @@ class Flight(models.Model):
     status = models.CharField(max_length=20, choices=FlightStatus.choices, default=FlightStatus.SCHEDULED)
     pilots = models.ManyToManyField('authentication.Pilot', related_name='assigned_flights', blank=True)
     crew_members = models.ManyToManyField('authentication.Crew', related_name='crew_flights', blank=True)
+
     def __str__(self):
         return f"{self.flight_number} - {self.airline.name}"
 

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Boarding Confirmation{% endblock %}
+
+{% block content %}
+<h2>Check-In Complete ✅</h2>
+
+<p>Thank you, {{ passenger.passport_number }}!</p>
+
+<h3>Boarding Summary</h3>
+<ul>
+  <li><strong>Flight:</strong> {{ flight.flight_number }} - {{ flight.airline.name }}</li>
+  <li><strong>Departure:</strong> {{ flight.departure }} at {{ flight.departure_time|date:"M d, H:i" }}</li>
+  <li><strong>Arrival:</strong> {{ flight.arrival }} at {{ flight.arrival_time|date:"M d, H:i" }}</li>
+  <li><strong>Seat(s):</strong>
+    {% if seats %}
+      {% for seat in seats %}{{ seat.flight_seat.seat_number }} {% if not forloop.last %}, {% endif %}{% endfor %}
+    {% else %}
+      Not assigned
+    {% endif %}
+  </li>
+  <li><strong>Baggage Weight:</strong> {{ baggage_weight }} kg</li>
+  {% if extra_fee > 0 %}
+    <li><strong>Extra Baggage Fee Paid:</strong> ${{ extra_fee }}</li>
+  {% endif %}
+</ul>
+
+<div class="success-message">
+  <p>You are all set! Please proceed to security and boarding.</p>
+</div>
+
+<a href="{% url 'flight_search' %}" class="styled-search-button">Book Another Flight</a>
+{% endblock %}

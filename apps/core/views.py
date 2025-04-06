@@ -224,20 +224,23 @@ def checkout_view(request):
                     flight_seat=inbound_seat,
                     reservation=reservation
                 )
-
+        total_price = outbound_seat.price
         outbound_seat.is_available = False
         outbound_seat.save()
         if inbound_seat:
             inbound_seat.is_available = False
             inbound_seat.save()
-
+            total_price += inbound_seat.price 
+       
+        flight_price = reservation.flight.price
+        total_price += flight_price 
         # Simulate payment
         method = request.POST.get("payment_method")
         if method == "credit_card":
             payment = CreditCard.objects.create(
                 name_on_card=request.POST.get("card_name"),
                 last_four_digits=request.POST.get("card_number")[-4:],
-                amount=outbound_seat.price,
+                amount=total_price ,
                 reservation=reservation,
                 status='approved'
             )
@@ -246,15 +249,15 @@ def checkout_view(request):
             payment = ACH.objects.create(
                 bank_name=request.POST.get("bank_name"),
                 acc_number_last_four=request.POST.get("account_number")[-4:],
-                amount=outbound_seat.price,
+                amount=total_price,
                 reservation=reservation,
                 status='approved'
             )
             reservation.payment_ach = payment
         elif method == "cash":
             payment = Cash.objects.create(
-                cash_tendered=outbound_seat.price,
-                amount=outbound_seat.price,
+                cash_tendered=total_price,
+                amount=total_price,
                 reservation=reservation,
                 status='approved'
             )
@@ -363,27 +366,3 @@ def frontdesk_dashboard(request):
         flight__departure_time__gte=datetime.now()
     ).select_related("flight", "itinerary", "itinerary__customer").order_by("flight__departure_time")
     return render(request, "frontdesk_dashboard.html", {"reservations": upcoming_reservations})
-
-def validate_baggage_rules(passenger, weight):
-    travel_count = passenger.travel_count
-    free_limit = 15
-    extra_fee = 0
-
-    if travel_count == 0 and weight > 15:
-        return (False, "First-time flyers cannot exceed 15kg without manager override.", 0)
-
-    if travel_count >= 5:
-        free_limit = 20
-
-    over_limit = weight - free_limit
-    if over_limit > 10:
-        return (False, "Baggage exceeds maximum allowed even with frequent flyer bonus.", 0)
-
-    if over_limit > 0:
-        if travel_count >= 3:
-            passenger.extra_baggage_allowed += over_limit
-            extra_fee = over_limit * 10
-        else:
-            return (False, "You must have at least 3 flights with us to get extra baggage allowance.", 0)
-
-    return (True, "Baggage accepted", extra_fee)
