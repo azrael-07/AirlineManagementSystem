@@ -38,9 +38,7 @@ class Passenger(models.Model):
     passport_number = models.CharField(max_length=20, unique=True)
     date_of_birth = models.DateField()
     reservation = models.ForeignKey(AirlineReservation, on_delete=models.CASCADE, related_name="passengers")
-    travel_count = models.IntegerField(default=0)
     baggage_weight = models.FloatField(null=True, blank=True)
-    extra_baggage_allowed = models.FloatField(default=0)
 
     def __str__(self):
         return f"Passenger {self.passport_number} - Reservation {self.reservation.reservationNumber}"

@@ -54,6 +54,8 @@ class Person(models.Model):
 
 class Customer(Person):
     frequentFlyingNumber = models.CharField(max_length= 20 , blank= True , null= True) #Optional Field
+    travel_count = models.PositiveIntegerField(default=0)
+    extra_baggage_allowed = models.FloatField(default=0.0)
 
     def __str__(self):
         return f'{self.user.email} with the frequentFlyingNumber {self.frequentFlyingNumber} is registered'

@@ -1,13 +1,12 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.decorators.http import require_http_methods
 from apps.bookings.models import AirlineReservation, Passenger, FlightBaggage
-from apps.payments.models import Payment
-from apps.bookings.models import Passenger
 
 
 def validate_baggage_rules(passenger, weight, flight_baggage=None):
     base_free_limit = 15
-    travel_count = passenger.travel_count
+    customer = passenger.reservation.itinerary.customer
+    travel_count = customer.travel_count
     free_limit = base_free_limit  # might increase
     over_limit = weight - free_limit
 
@@ -26,13 +25,15 @@ def validate_baggage_rules(passenger, weight, flight_baggage=None):
                 free_limit += 4  # increase allowance
                 over_limit = weight - free_limit
                 if over_limit <= 0:
-                    passenger.extra_baggage_allowed += (weight - base_free_limit)
+                    customer.extra_baggage_allowed += (weight - base_free_limit)
+                    customer.save()
                     return True, "4kg grace allowed for first-time flyer", 0
         
     # Rule 2: Frequent flyer with 3+ trips and minimal extra baggage so far
-    if travel_count >= 3 and passenger.extra_baggage_allowed < 10:
+    if travel_count >= 3 and customer.extra_baggage_allowed < 10:
         if over_limit <= 2:
-            passenger.extra_baggage_allowed += over_limit
+            customer.extra_baggage_allowed += over_limit
+            customer.save()
             return True, "Small overage (2kg) waived for loyal passenger", 0
 
     # Rule 3: Very loyal (5+ trips) → increase free_limit to 20kg
@@ -40,7 +41,8 @@ def validate_baggage_rules(passenger, weight, flight_baggage=None):
         free_limit = 20
         over_limit = weight - free_limit
         if over_limit <= 10:
-            passenger.extra_baggage_allowed += over_limit
+            customer.extra_baggage_allowed += over_limit
+            customer.save()
             return True, f"{over_limit}kg extra allowed under loyalty benefits", over_limit * 10
         elif weight >= 35:
             return False, "Cannot exceed 35kg even for loyal flyers", 0
@@ -158,7 +160,7 @@ def checkin_complete_view(request):
        
         try:
             flight_baggage = FlightBaggage.objects.get(flight=flight)
-            # Calculate the total baggage weight for all passengers in this reservatio
+            # Calculate the total baggage weight for all passengers in this reservation
 
             total_baggage = sum(
             p.baggage_weight for p in Passenger.objects.filter(reservation=reservation) if p.baggage_weight
@@ -166,6 +168,10 @@ def checkin_complete_view(request):
             flight_baggage.used_capacity_kg += total_baggage
             flight_baggage.save()
             request.session["baggage_updated"] = True
+            
+            customer = passenger.reservation.itinerary.customer
+            customer.travel_count += 1
+            customer.save()
         except FlightBaggage.DoesNotExist:
             # Optionally, log an error or create a new record if needed
             pass
