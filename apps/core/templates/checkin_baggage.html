@@ -1,29 +1,47 @@
 {% extends "base.html" %}
+{% load static %}
 {% block title %}Baggage Check-In{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/checkin_baggage.css' %}">
+{% endblock %}
+
 {% block content %}
-<h2>Baggage Check-In</h2>
+<div class="checkin-container">
+  <div class="checkin-header">
+    <i class="fas fa-suitcase-rolling icon"></i>
+    <h2>Baggage Check-In</h2>
+    <p>Welcome, <strong>{{ passenger.passport_number }}</strong>! Please enter your baggage weight below.</p>
+  </div>
 
-<p>Welcome, {{ passenger.passport_number }}! Please enter your baggage weight below.</p>
+  {% if message %}
+    <div class="error-message">
+      <i class="fas fa-exclamation-circle"></i> {{ message }}
+    </div>
+  {% endif %}
 
-{% if message %}
-  <div class="message">{{ message }}</div>
-{% endif %}
+  <form method="post" action="{% url 'checkin_baggage' %}" class="baggage-form">
+    {% csrf_token %}
+    <div class="form-group">
+      <label for="baggage_weight"><i class="fas fa-weight-hanging"></i> Baggage Weight (kg)</label>
+      <input type="number" name="baggage_weight" step="0.1" min="0" required>
+    </div>
 
-<form method="post" action="{% url 'checkin_baggage' %}">
-  {% csrf_token %}
-  <label for="baggage_weight">Baggage Weight (kg):</label>
-  <input type="number" name="baggage_weight" step="0.1" min="0" required>
+    <button type="submit" class="submit-button">
+      <i class="fas fa-check"></i> Submit
+    </button>
+  </form>
 
-  <button type="submit" class="styled-search-button">Submit</button>
-</form>
+  {% if extra_fee %}
+    <div class="fee-warning">
+      <i class="fas fa-dollar-sign"></i> You have exceeded the free baggage allowance.
+      Estimated fee: <strong>${{ extra_fee }}</strong>
+    </div>
+  {% endif %}
 
-{% if extra_fee %}
-  <p>⚠️ You have exceeded the free baggage allowance. Estimated fee: ${{ extra_fee }}</p>
-{% endif %}
-
-<div class="support-link">
-  <p>Need help?</p>
-  <a href="#" class="styled-search-button">Call a Human Agent</a>
+  <div class="support-link">
+    <p>Need help?</p>
+    <a href="#" class="secondary-button"><i class="fas fa-headset"></i> Call a Human Agent</a>
+  </div>
 </div>
 {% endblock %}

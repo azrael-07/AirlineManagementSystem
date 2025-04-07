@@ -1,32 +1,47 @@
 {% extends "base.html" %}
+{% load static %}
 {% block title %}Payment for Extra Baggage{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/checkin_payment.css' %}">
+{% endblock %}
+
 {% block content %}
-<h2>Payment for Extra Baggage</h2>
+<div class="checkin-container">
+  <div class="checkin-header">
+    <i class="fas fa-money-check-alt icon"></i>
+    <h2>Payment for Extra Baggage</h2>
+    <p>Hello <strong>{{ passenger.passport_number }}</strong>!</p>
+    <p>You have exceeded the free baggage allowance.</p>
+    <p class="fee-due">
+      <i class="fas fa-dollar-sign"></i> <strong>Fee Due: ${{ extra_fee }}</strong>
+    </p>
+  </div>
 
-<p>Hello {{ passenger.passport_number }}!</p>
-<p>You have exceeded the free baggage allowance.</p>
-<p><strong>Fee Due:</strong> ${{ extra_fee }}</p>
+  <form method="post" action="{% url 'checkin_payment' %}" class="payment-form">
+    {% csrf_token %}
 
-<form method="post" action="{% url 'checkin_payment' %}">
-  {% csrf_token %}
-  
-  <label>Payment Method:</label>
-  <p>
-    {% if reservation.payment_credit_card %}
-      Credit Card (****{{ reservation.payment_credit_card.last_four_digits }})
-    {% elif reservation.payment_ach %}
-      ACH - {{ reservation.payment_ach.bank_name }}
-    {% elif reservation.payment_cash %}
-      Cash
-    {% endif %}
-  </p>
+    <label class="payment-label"><i class="fas fa-credit-card"></i> Payment Method:</label>
+    <div class="payment-method">
+      {% if reservation.payment_credit_card %}
+        Credit Card (****{{ reservation.payment_credit_card.last_four_digits }})
+      {% elif reservation.payment_ach %}
+        ACH - {{ reservation.payment_ach.bank_name }}
+      {% elif reservation.payment_cash %}
+        Cash
+      {% endif %}
+    </div>
 
-  <button type="submit" class="styled-search-button">Pay and Continue</button>
-</form>
+    <button type="submit" class="submit-button">
+      <i class="fas fa-check-circle"></i> Pay and Continue
+    </button>
+  </form>
 
-<div class="support-link">
-  <p>Need assistance?</p>
-  <a href="#" class="styled-search-button">Call a Human Agent</a>
+  <div class="support-link">
+    <p>Need assistance?</p>
+    <a href="#" class="secondary-button">
+      <i class="fas fa-headset"></i> Call a Human Agent
+    </a>
+  </div>
 </div>
 {% endblock %}

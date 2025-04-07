@@ -1,27 +1,45 @@
 {% extends "base.html" %}
 {% block title %}Start Check-In{% endblock %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/checkin_start.css' %}">
+{% endblock %}
 
 {% block content %}
-<h2>Welcome to Fly Delta Self Check-In</h2>
-<p>Please enter your reservation details to begin.</p>
+<div class="checkin-container">
+  <div class="checkin-header">
+    <i class="fas fa-plane-departure icon"></i>
+    <h2>Welcome to Fly Delta Self Check-In</h2>
+    <p>Please enter your reservation details to begin.</p>
+  </div>
 
-{% if message %}
-  <div class="error">{{ message }}</div>
-{% endif %}
+  {% if message %}
+    <div class="error-message">
+      <i class="fas fa-exclamation-circle"></i> {{ message }}
+    </div>
+  {% endif %}
 
-<form method="post" action="{% url 'checkin_start' %}">
-  {% csrf_token %}
-  <label for="reservation_number">Reservation Number:</label>
-  <input type="text" name="reservation_number" required>
+  <form method="post" action="{% url 'checkin_start' %}" class="checkin-form">
+    {% csrf_token %}
+    <div class="form-group">
+      <label for="reservation_number"><i class="fas fa-receipt"></i> Reservation Number</label>
+      <input type="text" name="reservation_number" required>
+    </div>
 
-  <label for="passport">Passport Number:</label>
-  <input type="text" name="passport" required>
+    <div class="form-group">
+      <label for="passport"><i class="fas fa-passport"></i> Passport Number</label>
+      <input type="text" name="passport" required>
+    </div>
 
-  <button type="submit" class="styled-search-button">Start Check-In</button>
-</form>
+    <button type="submit" class="submit-button">
+      <i class="fas fa-check-circle"></i> Start Check-In
+    </button>
+  </form>
 
-<div class="support-link">
-  <p>Having trouble?</p>
-  <a href="#" class="styled-search-button">Call a Human Agent</a>
+  <div class="support-link">
+    <p>Having trouble?</p>
+    <a href="#" class="secondary-button"><i class="fas fa-headset"></i> Call a Human Agent</a>
+  </div>
 </div>
 {% endblock %}
