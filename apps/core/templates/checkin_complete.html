@@ -1,32 +1,50 @@
 {% extends "base.html" %}
+{% load static %}
 {% block title %}Boarding Confirmation{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/checkin_complete.css' %}">
+{% endblock %}
+
 {% block content %}
-<h2>Check-In Complete ✅</h2>
+<div class="confirmation-container">
+  <div class="confirmation-header">
+    <i class="fas fa-check-circle icon"></i>
+    <h2>Check-In Complete</h2>
+    <p class="thank-you">Thank you, <strong>{{ passenger.passport_number }}</strong>!</p>
+  </div>
 
-<p>Thank you, {{ passenger.passport_number }}!</p>
+  <div class="summary-section">
+    <h3><i class="fas fa-plane"></i> Boarding Summary</h3>
+    <ul class="summary-list">
+      <li><strong>Flight:</strong> {{ flight.flight_number }} - {{ flight.airline.name }}</li>
+      <li><strong>Departure:</strong> {{ flight.departure }} at {{ flight.departure_time|date:"M d, H:i" }}</li>
+      <li><strong>Arrival:</strong> {{ flight.arrival }} at {{ flight.arrival_time|date:"M d, H:i" }}</li>
+      <li><strong>Seat(s):</strong>
+        {% if seats %}
+          {% for seat in seats %}
+            {{ seat.flight_seat.seat_number }}{% if not forloop.last %}, {% endif %}
+          {% endfor %}
+        {% else %}
+          Not assigned
+        {% endif %}
+      </li>
+      <li><strong>Baggage Weight:</strong> {{ baggage_weight }} kg</li>
+      {% if extra_fee > 0 %}
+        <li><strong>Extra Baggage Fee Paid:</strong> ${{ extra_fee }}</li>
+      {% endif %}
+    </ul>
+  </div>
 
-<h3>Boarding Summary</h3>
-<ul>
-  <li><strong>Flight:</strong> {{ flight.flight_number }} - {{ flight.airline.name }}</li>
-  <li><strong>Departure:</strong> {{ flight.departure }} at {{ flight.departure_time|date:"M d, H:i" }}</li>
-  <li><strong>Arrival:</strong> {{ flight.arrival }} at {{ flight.arrival_time|date:"M d, H:i" }}</li>
-  <li><strong>Seat(s):</strong>
-    {% if seats %}
-      {% for seat in seats %}{{ seat.flight_seat.seat_number }} {% if not forloop.last %}, {% endif %}{% endfor %}
-    {% else %}
-      Not assigned
-    {% endif %}
-  </li>
-  <li><strong>Baggage Weight:</strong> {{ baggage_weight }} kg</li>
-  {% if extra_fee > 0 %}
-    <li><strong>Extra Baggage Fee Paid:</strong> ${{ extra_fee }}</li>
-  {% endif %}
-</ul>
+  <div class="success-message">
+    <i class="fas fa-door-open"></i>
+    <p>You are all set! Please proceed to security and boarding.</p>
+  </div>
 
-<div class="success-message">
-  <p>You are all set! Please proceed to security and boarding.</p>
+  <div class="action-button">
+    <a href="{% url 'flight_search' %}" class="primary-button">
+      <i class="fas fa-plane-departure"></i> Book Another Flight
+    </a>
+  </div>
 </div>
-
-<a href="{% url 'flight_search' %}" class="styled-search-button">Book Another Flight</a>
 {% endblock %}
