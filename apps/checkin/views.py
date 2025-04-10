@@ -6,6 +6,7 @@ from apps.bookings.models import AirlineReservation, Passenger, FlightBaggage
 def validate_baggage_rules(passenger, weight, flight_baggage=None):
     base_free_limit = 15
     customer = passenger.reservation.itinerary.customer
+
     travel_count = customer.travel_count
     free_limit = base_free_limit  # might increase
     over_limit = weight - free_limit
@@ -16,18 +17,25 @@ def validate_baggage_rules(passenger, weight, flight_baggage=None):
 
     # Rule 1: Special grace for first-time flyers
     if travel_count == 0:
+        print('enter 0 travel')
         if flight_baggage:
             est_capacity = flight_baggage.estimate_passenger_capacity()
             if (
                 flight_baggage.remaining_capacity > 0.5 * est_capacity or
                 est_capacity >= 0.7 * flight_baggage.total_capacity_kg
             ):
+                print('validation rule enter')
                 free_limit += 4  # increase allowance
                 over_limit = weight - free_limit
                 if over_limit <= 0:
-                    customer.extra_baggage_allowed += (weight - base_free_limit)
-                    customer.save()
                     return True, "4kg grace allowed for first-time flyer", 0
+                # If still over after grace, allow with fee and DO NOT update extra_baggage_allowed
+                if over_limit <= 10:
+                    print('validation rule allowed')
+                    return True, f"{over_limit}kg over grace. Fee applies", over_limit * 10
+                else:
+                    print('validation rule discarded')
+                    return False, "Over-limit exceeds maximum allowance even after grace", 0
         
     # Rule 2: Frequent flyer with 3+ trips and minimal extra baggage so far
     if travel_count >= 3 and customer.extra_baggage_allowed < 10:
@@ -51,9 +59,11 @@ def validate_baggage_rules(passenger, weight, flight_baggage=None):
     over_limit = weight - free_limit
     if over_limit > 10:
         return False, "Over-limit exceeds maximum allowance of 10kg", 0
+        # Final fallback: reject if no conditions met
+    return False, "Baggage does not meet any criteria for extra allowance. Please contact support.", 0
 
-    # Final fallback: allow with charge
-    return True, f"{over_limit}kg over limit. Extra fee applies", over_limit * 10
+
+    
 
 # Create your views here.
 @require_http_methods(["GET", "POST"])
@@ -67,6 +77,7 @@ def checkin_start_view(request):
             reservation = AirlineReservation.objects.get(id=reservation_number)
             passenger = Passenger.objects.get(reservation=reservation, passport_number=passport)
             request.session["checkin_passenger_id"] = passenger.id
+            request.session.pop(f"baggage_updated_{passenger.id}", None)
             return redirect("checkin_baggage")
         except (AirlineReservation.DoesNotExist, Passenger.DoesNotExist):
             message = "No matching reservation/passport found. Please try again or call an agent."
@@ -93,7 +104,8 @@ def checkin_baggage_view(request):
                 "message": message,
             })
 
-        is_valid, message, extra_fee = validate_baggage_rules(passenger, baggage_weight)
+        flight_baggage = FlightBaggage.objects.filter(flight=passenger.reservation.flight).first()
+        is_valid, message, extra_fee = validate_baggage_rules(passenger, baggage_weight, flight_baggage)
 
         if is_valid:
             passenger.baggage_weight = baggage_weight
@@ -131,11 +143,18 @@ def checkin_payment_view(request):
             payment = reservation.payment_cash
 
         if payment:
+            print("Payment Before Update:", payment.amount)
             payment.amount += extra_fee
             payment.save()
+            print("Payment After Update:", payment.amount)
 
-        request.session["checkin_paid"] = True
-        return redirect("checkin_complete")
+            print("Redirecting to checkin_complete")
+            request.session["checkin_paid"] = True
+            return redirect("checkin_complete")
+        else:
+            print("No payment object found for reservation:", reservation.id)
+            request.session["checkin_paid"] = False
+            return redirect("checkin_complete")  # Still redirect but flag that payment is missing
 
     reservation = passenger.reservation
     return render(request, "checkin_payment.html", {
@@ -143,7 +162,6 @@ def checkin_payment_view(request):
         "extra_fee": extra_fee,
         "reservation": reservation
     })
-
 @require_http_methods(["GET"])
 def checkin_complete_view(request):
     passenger_id = request.session.get("checkin_passenger_id")
@@ -155,26 +173,38 @@ def checkin_complete_view(request):
     flight = reservation.flight
     seats = passenger.passengerseat_set.all()
 
-    # Update FlightBaggage record for this flight if not already updated for this reservation
-    if not request.session.get("baggage_updated"):
-       
+    # Remove or override session flag to allow updates for testing.
+    # For production, you might want to check if this reservation has already updated baggage.
+    if not request.session.get("baggage_updated", False):
         try:
             flight_baggage = FlightBaggage.objects.get(flight=flight)
-            # Calculate the total baggage weight for all passengers in this reservation
-
-            total_baggage = sum(
-            p.baggage_weight for p in Passenger.objects.filter(reservation=reservation) if p.baggage_weight
-            )
-            flight_baggage.used_capacity_kg += total_baggage
-            flight_baggage.save()
-            request.session["baggage_updated"] = True
-            
-            customer = passenger.reservation.itinerary.customer
-            customer.travel_count += 1
-            customer.save()
         except FlightBaggage.DoesNotExist:
-            # Optionally, log an error or create a new record if needed
-            pass
+            # If no FlightBaggage record exists, create one based on total seats * 15 kg.
+            total_seats = flight.flightseat_set.count()
+            default_capacity = total_seats * 15
+            flight_baggage = FlightBaggage.objects.create(
+                flight=flight,
+                total_capacity_kg=default_capacity,
+                used_capacity_kg=0
+            )
+            print("Created new FlightBaggage record for flight", flight.id)
+        
+        # Calculate the total baggage weight for all passengers in this reservation
+        passengers_in_reservation = Passenger.objects.filter(reservation=reservation)
+        total_baggage = sum([p.baggage_weight or 0 for p in passengers_in_reservation])
+        print("Total baggage for reservation:", total_baggage)
+        
+        # Update the used capacity and save to DB
+        flight_baggage.used_capacity_kg += total_baggage
+        flight_baggage.save()
+        print("FlightBaggage updated: used_capacity_kg =", flight_baggage.used_capacity_kg)
+        request.session["baggage_updated"] = True
+
+        # Update the customer's travel count
+        customer = reservation.itinerary.customer
+        customer.travel_count += 1
+        customer.save()
+        print("Updated customer travel_count to", customer.travel_count)
 
     return render(request, "checkin_complete.html", {
         "passenger": passenger,

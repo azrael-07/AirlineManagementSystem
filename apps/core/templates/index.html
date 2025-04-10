@@ -7,7 +7,7 @@ Management System{% endblock %} {% block content %}
       <img src="{% static 'pics/flight1.jpg' %}" alt="Airplane in sky" />
       <div class="slide-overlay"></div>
       <div class="slide-content">
-        <h1>Welcome to Airline Management System</h1>
+        <h1>Welcome to FlyDelta</h1>
         <p>Your trusted partner for seamless air travel experiences</p>
         <a href="{% if request.user.is_authenticated %}{% url 'flight_search' %}{% else %}{% url 'login' %}{% endif %}" class="cta-button"
           >Search Flights</a
